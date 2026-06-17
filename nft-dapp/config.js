@@ -16,6 +16,9 @@ const CONFIG = {
   MAX_SUPPLY: 5,
   MINT_PRICE_ETH: "0",            // "0" = free mint; change to "0.001" etc. if needed
 
+  // Paste your Voting contract address here after deploying voting.sol in Remix
+  VOTING_CONTRACT: "0x537109bD9703e4214C02F855493ceA378994BeAD",
+
   // Unix timestamp of when the NFT contract was deployed.
   // Find it on Etherscan: open your contract → Creation Tx → check the timestamp.
   // Current estimate: June 17 2026. Update this to the exact value for accuracy.

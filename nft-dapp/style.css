@@ -1342,6 +1342,93 @@ img { display: block; max-width: 100%; }
 /* =============================================
    RESPONSIVE ADDITIONS
    ============================================= */
+/* =============================================
+   VOTE NAV LINK ACCENT
+   ============================================= */
+.nav-link.vote-link { color: #10b981; font-weight: 700; }
+.nav-link.vote-link:hover, .nav-link.vote-link.active { color: #6ee7b7; }
+
+/* =============================================
+   ELECTION CARDS
+   ============================================= */
+.elections-list { display: flex; flex-direction: column; gap: 12px; }
+.election-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--r); overflow: hidden; transition: border-color 0.2s;
+}
+.election-card:hover { border-color: rgba(16,185,129,0.35); }
+.election-card-top {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; padding: 20px 22px 16px;
+}
+.election-card-info { flex: 1; }
+.election-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.election-id { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; font-family: monospace; }
+.election-title-text { font-size: 1.05rem; font-weight: 800; margin-bottom: 4px; }
+.election-desc { font-size: 0.82rem; color: var(--text-soft); }
+.election-card-stats { display: flex; gap: 16px; flex-shrink: 0; }
+.election-stat { display: flex; flex-direction: column; align-items: center; }
+.election-stat strong { font-size: 1.4rem; font-weight: 900; line-height: 1; }
+.election-stat span  { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.election-stat.time-left strong { font-size: 1rem; color: #10b981; font-family: monospace; }
+.election-card-footer {
+  display: flex; gap: 10px; align-items: center;
+  padding: 12px 22px; border-top: 1px solid var(--card-border);
+  background: rgba(0,0,0,0.1);
+}
+.election-status { padding: 3px 10px; border-radius: 999px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+.status-open    { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+.status-closed  { background: rgba(100,116,139,0.15); color: var(--text-muted); border: 1px solid rgba(100,116,139,0.2); }
+.status-pending { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+
+/* =============================================
+   CANDIDATE OPTIONS (vote modal)
+   ============================================= */
+.candidate-list { display: flex; flex-direction: column; gap: 8px; }
+.candidate-option {
+  background: var(--card-bg); border: 2px solid var(--card-border);
+  border-radius: var(--r-sm); padding: 12px 14px;
+  cursor: pointer; transition: all 0.2s; user-select: none;
+}
+.candidate-option:hover   { border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.05); }
+.candidate-option.selected { border-color: #10b981; background: rgba(16,185,129,0.08); }
+.candidate-option.user-choice { border-color: rgba(124,58,237,0.4); background: rgba(124,58,237,0.06); cursor: default; }
+.candidate-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.candidate-select-area { display: flex; align-items: center; gap: 10px; flex: 1; }
+.candidate-radio { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--card-border); flex-shrink: 0; transition: all 0.2s; }
+.candidate-radio.checked { border-color: #10b981; background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
+.candidate-name { font-weight: 700; font-size: 0.9rem; }
+.candidate-pct  { font-size: 0.82rem; color: var(--text-muted); font-weight: 600; }
+.candidate-bar-bg { height: 5px; background: rgba(255,255,255,0.07); border-radius: 999px; overflow: hidden; margin-bottom: 5px; }
+.candidate-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg,#10b981,#06b6d4); transition: width 0.7s ease; }
+.candidate-vote-count { font-size: 0.72rem; color: var(--text-muted); }
+.your-vote-tag { background: rgba(124,58,237,0.2); color: var(--purple-light); padding: 2px 8px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; }
+.leading-tag   { background: rgba(16,185,129,0.2); color: #10b981; padding: 2px 8px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; }
+.already-voted-msg { background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.25); border-radius: var(--r-sm); padding: 10px 14px; font-size: 0.85rem; color: var(--purple-light); margin-top: 12px; }
+
+/* =============================================
+   RESULTS BARS
+   ============================================= */
+.results-header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.results-title { font-size: 1.05rem; font-weight: 800; flex: 1; }
+.results-winner { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); border-radius: var(--r-sm); padding: 10px 16px; font-size: 0.88rem; margin-bottom: 16px; color: #10b981; }
+.results-bars { display: flex; flex-direction: column; gap: 14px; }
+.result-row { display: flex; flex-direction: column; gap: 5px; }
+.result-label-row { display: flex; justify-content: space-between; font-size: 0.85rem; }
+.result-name  { font-weight: 700; }
+.result-count { color: var(--text-muted); }
+.result-bar-bg { height: 10px; background: rgba(255,255,255,0.07); border-radius: 999px; overflow: hidden; }
+.result-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg,var(--purple),var(--pink)); transition: width 0.8s ease; }
+.result-bar-fill.leading { background: linear-gradient(90deg,#10b981,#06b6d4); }
+
+/* =============================================
+   ADMIN FORM
+   ============================================= */
+.admin-form { background: var(--card-bg); border: 1px solid rgba(245,158,11,0.2); border-radius: var(--r); padding: 24px; }
+.admin-form-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 16px; color: #f59e0b; }
+.admin-label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+textarea.ownership-input { font-family: inherit; line-height: 1.6; }
+
 @media (max-width: 768px) {
   .nft-modal-img-wrap { width: 100%; border-radius: 24px 24px 0 0; aspect-ratio: auto; height: 220px; }
   .nft-modal-inner { flex-direction: column; }

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blockchain Voting — idkSomething</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#7c3aed"/>
+  <meta name="description" content="Tamper-proof blockchain voting on Ethereum Sepolia. Create elections, vote with your wallet, verify results on-chain."/>
+  <meta property="og:title" content="Blockchain Voting System"/>
+  <meta property="og:description" content="On-chain voting: 1 wallet = 1 vote. Results publicly verifiable on Etherscan."/>
+  <meta property="og:image" content="https://ync-token-project.pages.dev/images/5.svg"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+</head>
+<body>
+
+  <div id="cursorTrail" aria-hidden="true"></div>
+  <canvas id="particleCanvas" class="particle-canvas" aria-hidden="true"></canvas>
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb1" style="background:#10b981"></div>
+    <div class="orb orb2" style="background:#7c3aed"></div>
+    <div class="orb orb3" style="background:#0891b2"></div>
+  </div>
+  <div class="grid-overlay" aria-hidden="true"></div>
+  <div class="grain-overlay" aria-hidden="true"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo" id="navLogo"><span class="logo-dot"></span>YNCNFT</a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html"   class="nav-link">Mint</a>
+      <a href="gallery.html" class="nav-link">My NFTs</a>
+      <a href="voting.html"  class="nav-link active">Vote</a>
+      <a href="about.html"   class="nav-link">About</a>
+      <a href="roadmap.html" class="nav-link">Roadmap</a>
+    </div>
+    <div class="nav-right">
+      <div class="gas-pill" id="gasPill" title="Current Sepolia gas price">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V8l9-6 9 6v14"/><path d="M9 22V12h6v10"/></svg>
+        <span id="gasPrice">—</span> gwei
+      </div>
+      <button class="dark-mode-btn" id="darkModeBtn" onclick="toggleDarkMode()" title="Toggle theme">
+        <span id="darkModeIcon">☀️</span>
+      </button>
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="page-header">
+    <div class="hero-inner">
+      <div class="badge"><span class="badge-dot" style="background:#10b981"></span>On-Chain · Tamper-Proof · Sepolia Testnet</div>
+      <h1 class="page-title">Blockchain <span class="gradient-text">Voting</span></h1>
+      <p class="page-subtitle">
+        1 wallet = 1 vote. Every ballot is a real Ethereum transaction.<br/>
+        Results are public, permanent, and verifiable by anyone.
+      </p>
+
+      <!-- Wallet connect / status -->
+      <div id="voteNotConnected" style="margin-top:24px">
+        <button class="btn btn-primary btn-lg glow-btn" onclick="connectWallet()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/></svg>
+          Connect Wallet to Vote
+        </button>
+      </div>
+
+      <div id="voteConnected" class="hidden" style="margin-top:16px">
+        <div class="wallet-row" style="justify-content:center">
+          <div class="wallet-pill">
+            <span class="status-dot"></span>
+            <span id="voteWalletShort" class="mono">—</span>
+          </div>
+          <span id="adminBadge" class="hidden" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:800;letter-spacing:0.05em">⚡ ADMIN</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- How it works -->
+  <section class="section reveal">
+    <div class="section-inner">
+      <div class="features-grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">
+        <div class="feature-card tilt-card">
+          <div class="feature-icon green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <h3>1 Address, 1 Vote</h3>
+          <p>The smart contract enforces a single vote per wallet. No duplicates possible.</p>
+        </div>
+        <div class="feature-card tilt-card">
+          <div class="feature-icon purple"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <h3>Tamper-Proof</h3>
+          <p>Votes are stored on the Ethereum blockchain. Nobody — including the admin — can alter them.</p>
+        </div>
+        <div class="feature-card tilt-card">
+          <div class="feature-icon cyan"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+          <h3>Transparent Results</h3>
+          <p>Live vote counts visible to everyone. No hidden tallies, no ballot stuffing.</p>
+        </div>
+        <div class="feature-card tilt-card">
+          <div class="feature-icon pink"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+          <h3>Verify Anywhere</h3>
+          <p>Every vote has a transaction hash. Search it on Etherscan to prove it happened.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Elections list -->
+  <section class="section reveal">
+    <div class="section-inner">
+      <div class="activity-header">
+        <div>
+          <h2 class="section-title">Active <span class="gradient-text">Elections</span></h2>
+          <p class="section-sub">Click an election to see candidates and cast your vote.</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="loadElections()">↺ Refresh</button>
+      </div>
+
+      <div id="electionsLoading" class="hidden">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="skeleton" style="height:100px;border-radius:16px"></div>
+          <div class="skeleton" style="height:100px;border-radius:16px"></div>
+        </div>
+      </div>
+
+      <div id="electionsEmpty" class="empty-state hidden">
+        <div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+        <h2>No elections yet</h2>
+        <p id="electionsEmptyMsg">Connect as admin to create the first election.</p>
+      </div>
+
+      <div id="electionsList" class="elections-list"></div>
+    </div>
+  </section>
+
+  <!-- Results section -->
+  <section class="section section-dark reveal">
+    <div class="section-inner">
+      <div class="activity-header">
+        <div>
+          <h2 class="section-title">Live <span class="gradient-text">Results</span></h2>
+          <p class="section-sub">Real-time vote counts from the blockchain.</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select id="resultsElectionSelect" class="ownership-input" style="width:auto;padding:8px 12px" onchange="loadResults()">
+            <option value="">Select election…</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" onclick="loadResults()">↺</button>
+        </div>
+      </div>
+      <div id="resultsArea">
+        <div class="activity-empty">Select an election above to see live results.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Vote verifier -->
+  <section class="section reveal">
+    <div class="section-inner narrow">
+      <h2 class="section-title">Verify a <span class="gradient-text">Vote</span></h2>
+      <p class="section-sub">Enter any wallet address to check how they voted in an election.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <select id="verifyElectionSelect" class="ownership-input" style="flex:0 0 200px;padding:10px 14px" onchange="">
+          <option value="">Select election…</option>
+        </select>
+        <input class="ownership-input" id="verifyAddress" type="text" placeholder="0x... wallet address" autocomplete="off" style="flex:1;min-width:180px"/>
+        <button class="btn btn-primary" onclick="verifyVote()">Verify</button>
+      </div>
+      <div id="verifyResult" class="ownership-result hidden"></div>
+    </div>
+  </section>
+
+  <!-- Admin Panel -->
+  <section class="section section-dark reveal" id="adminPanel" style="display:none">
+    <div class="section-inner narrow">
+      <div class="admin-header">
+        <div>
+          <h2 class="section-title">⚡ Admin <span class="gradient-text">Panel</span></h2>
+          <p class="section-sub">You are the contract owner. Create and manage elections.</p>
+        </div>
+      </div>
+
+      <div class="admin-form">
+        <h3 class="admin-form-title">Create New Election</h3>
+
+        <label class="admin-label">Election Title</label>
+        <input class="ownership-input" id="elTitle" type="text" placeholder="e.g. Best Programming Language" style="width:100%;margin-bottom:12px"/>
+
+        <label class="admin-label">Description</label>
+        <textarea class="ownership-input" id="elDesc" rows="2" placeholder="Context for voters…" style="width:100%;resize:vertical;margin-bottom:12px"></textarea>
+
+        <label class="admin-label">Candidates <small style="color:var(--text-muted)">(one per line, 2–10)</small></label>
+        <textarea class="ownership-input" id="elCandidates" rows="4"
+          placeholder="Python&#10;JavaScript&#10;Rust&#10;Go" style="width:100%;resize:vertical;margin-bottom:12px"></textarea>
+
+        <label class="admin-label">Duration</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+          <button class="filter-btn" onclick="setDuration(3600, this)">1 Hour</button>
+          <button class="filter-btn active" onclick="setDuration(86400, this)">24 Hours</button>
+          <button class="filter-btn" onclick="setDuration(259200, this)">3 Days</button>
+          <button class="filter-btn" onclick="setDuration(604800, this)">7 Days</button>
+          <button class="filter-btn" onclick="setDuration(300, this)">5 Min (demo)</button>
+        </div>
+        <input type="hidden" id="elDuration" value="86400"/>
+
+        <button class="btn btn-primary glow-btn" style="width:100%" id="createElBtn" onclick="createElection()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          Create Election
+        </button>
+      </div>
+
+      <!-- Close election -->
+      <div class="admin-form" style="margin-top:16px">
+        <h3 class="admin-form-title">Close an Election Early</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select id="closeElectionSelect" class="ownership-input" style="flex:1;min-width:160px;padding:10px 14px">
+            <option value="">Select election…</option>
+          </select>
+          <button class="btn btn-ghost" onclick="closeElection()" style="border-color:rgba(239,68,68,0.4);color:#ef4444">Close</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Vote Modal -->
+  <div class="modal-overlay hidden" id="voteModal" onclick="closeVoteModal(event)">
+    <div class="nft-modal" style="max-width:520px">
+      <button class="modal-close" onclick="closeVoteModal()">✕</button>
+      <div style="padding:32px">
+        <div class="badge" style="margin-bottom:12px"><span class="badge-dot" style="background:#10b981"></span>Cast Your Vote</div>
+        <h2 id="voteModalTitle" style="font-size:1.3rem;font-weight:800;margin-bottom:8px"></h2>
+        <p id="voteModalDesc" style="font-size:0.88rem;color:var(--text-soft);margin-bottom:24px"></p>
+
+        <div id="candidateOptions" class="candidate-list"></div>
+
+        <div id="alreadyVotedMsg" class="already-voted-msg hidden"></div>
+
+        <div id="voteActions" style="margin-top:20px;display:flex;flex-direction:column;gap:10px">
+          <button class="btn btn-primary glow-btn" id="castVoteBtn" onclick="castVote()" disabled>
+            Cast Vote →
+          </button>
+          <p style="font-size:0.75rem;color:var(--text-muted);text-align:center">
+            Your vote will be recorded as an Ethereum transaction. Gas required.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vote Receipt Modal -->
+  <div class="modal-overlay hidden" id="voteReceiptModal" onclick="closeVoteReceipt(event)">
+    <div class="receipt-modal">
+      <button class="modal-close" onclick="closeVoteReceipt()">✕</button>
+      <div class="receipt-header">
+        <div class="receipt-icon">🗳️</div>
+        <h2>Vote Recorded!</h2>
+        <p>Your ballot is permanently on the Ethereum blockchain.</p>
+      </div>
+      <div class="receipt-body" id="voteReceiptBody"></div>
+      <div class="receipt-actions">
+        <button class="btn btn-ghost btn-sm" onclick="shareVoteOnX()">Share on 𝕏</button>
+        <a id="voteEtherscan" href="#" target="_blank" class="btn btn-primary btn-sm">Verify on Etherscan ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+  <script src="config.js"></script>
+  <script src="particles.js"></script>
+  <script src="script.js"></script>
+  <script src="voting.js"></script>
+</body>
+</html>
