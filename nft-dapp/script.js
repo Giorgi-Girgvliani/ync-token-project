@@ -285,11 +285,16 @@ async function loadGallery(showSkeleton = false) {
 
   if (!nftContract) {
     loading?.classList.add("hidden");
-    if (grid)  grid.classList.add("hidden");
+    if (grid) grid.classList.add("hidden");
     if (empty) {
       empty.classList.remove("hidden");
-      empty.querySelector("h2").textContent = "Contract not configured";
-      empty.querySelector("p").textContent  = "Paste your NFT contract address in config.js";
+      if (CONFIG.NFT_CONTRACT === "PASTE_YOUR_NFT_CONTRACT_ADDRESS") {
+        empty.querySelector("h2").textContent = "Contract not configured";
+        empty.querySelector("p").textContent  = "Paste your NFT contract address in config.js";
+      } else {
+        empty.querySelector("h2").textContent = "Wallet not connected";
+        empty.querySelector("p").textContent  = "Connect MetaMask to view your idkSomething NFTs.";
+      }
     }
     return;
   }

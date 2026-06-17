@@ -46,7 +46,7 @@
       <div class="badge"><span class="badge-dot"></span>Your Collection</div>
       <h1 class="page-title">My <span class="gradient-text">NFTs</span></h1>
       <p class="page-subtitle">Connect your wallet to see which pieces of nothing you own.</p>
-      <button class="btn btn-ghost btn-sm" style="margin-top:16px" onclick="loadGallery()" id="refreshGalleryBtn">↺ Refresh</button>
+      <button class="btn btn-ghost btn-sm" style="margin-top:16px" onclick="nftContract ? loadGallery() : connectWallet()" id="refreshGalleryBtn">↺ Refresh</button>
     </div>
   </header>
 
