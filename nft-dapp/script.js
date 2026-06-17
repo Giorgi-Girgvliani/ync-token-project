@@ -8,6 +8,8 @@ const NFT_ABI = [
   "function name() view returns (string)",
   "event Minted(address indexed to, uint256 tokenId)",
   "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
+  "function ownerOf(uint256 tokenId) view returns (address)",
+  "function safeTransferFrom(address from, address to, uint256 tokenId)",
 ];
 
 const ERC20_ABI = [
@@ -359,10 +361,15 @@ async function loadGallery(showSkeleton = false) {
             <span class="nft-trait">${names[id] || 'The Void'}</span>
             <span class="nft-trait">Utility: None</span>
           </div>
-          <a href="${esLink}" target="_blank" rel="noopener noreferrer" class="nft-etherscan">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            View on Etherscan
-          </a>
+          <div class="nft-card-actions">
+            <a href="${esLink}" target="_blank" rel="noopener noreferrer" class="nft-etherscan">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Etherscan
+            </a>
+            <button class="nft-action-btn" onclick="downloadNFT(${id})" title="Download SVG">⬇</button>
+            <button class="nft-action-btn" onclick="openCertModal(${id})" title="Certificate">🏅</button>
+            <button class="nft-action-btn transfer-btn" onclick="openTransferModal(${id})" title="Transfer">📤</button>
+          </div>
         </div>
       `;
       card.querySelector("img").addEventListener("click", () => openPreview(id));
@@ -392,8 +399,9 @@ document.addEventListener("keydown", e => {
   if (e.key !== "Escape") return;
   if (matrixActive) { stopMatrix(); return; }
   closeLightbox();
-  document.getElementById("nftModal")?.classList.add("hidden");
-  document.getElementById("receiptModal")?.classList.add("hidden");
+  ["nftModal","receiptModal","transferModal","certModal"].forEach(id => {
+    document.getElementById(id)?.classList.add("hidden");
+  });
   if (document.body.style.overflow === "hidden") document.body.style.overflow = "";
 });
 
@@ -1039,3 +1047,226 @@ async function loadLeaderboard() {
 }
 setTimeout(() => { if (document.getElementById("leaderboard")) loadLeaderboard(); }, 2000);
 
+/* ─── Sound toggle ──────────────────────────────────────────────────────── */
+let soundEnabled = localStorage.getItem("ync-sound") !== "off";
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  localStorage.setItem("ync-sound", soundEnabled ? "on" : "off");
+  const icon = document.getElementById("soundIcon");
+  if (icon) icon.textContent = soundEnabled ? "🔊" : "🔇";
+  showToast(soundEnabled ? "Sound on" : "Sound off");
+}
+
+(function applySoundState() {
+  const icon = document.getElementById("soundIcon");
+  if (icon) icon.textContent = soundEnabled ? "🔊" : "🔇";
+})();
+
+(function guardSound() {
+  const orig = playMintSound;
+  playMintSound = function() { if (soundEnabled) orig(); };
+})();
+
+/* ─── Nothing counter ───────────────────────────────────────────────────── */
+(function nothingCounter() {
+  const el = document.getElementById("nothingCounter");
+  if (!el) return;
+  function tick() {
+    const now     = Math.floor(Date.now() / 1000);
+    const elapsed = now - CONFIG.DEPLOY_TIMESTAMP;
+    const d = Math.floor(elapsed / 86400);
+    const h = Math.floor((elapsed % 86400) / 3600);
+    const m = Math.floor((elapsed % 3600) / 60);
+    const s = elapsed % 60;
+    el.textContent = `${d}d ${h}h ${m}m ${s}s`;
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+
+/* ─── Token owner labels on collection cards ────────────────────────────── */
+async function loadTokenOwners() {
+  if (typeof ethers === "undefined" || CONFIG.NFT_CONTRACT === "PASTE_YOUR_NFT_CONTRACT_ADDRESS") return;
+  try {
+    const p   = await getReadProvider();
+    const con = new ethers.Contract(CONFIG.NFT_CONTRACT, NFT_ABI, p);
+    const sup = await con.totalSupply();
+    const total = sup.toNumber();
+    for (let id = 1; id <= CONFIG.MAX_SUPPLY; id++) {
+      const el = document.getElementById(`owner-${id}`);
+      if (!el) continue;
+      if (id > total) { el.textContent = "Not minted"; el.style.color = "var(--text-muted)"; continue; }
+      try {
+        const owner = await con.ownerOf(id);
+        el.textContent = `${owner.slice(0,6)}…${owner.slice(-4)}`;
+        el.title = owner;
+      } catch { el.textContent = "Unknown"; }
+    }
+  } catch {}
+}
+setTimeout(loadTokenOwners, 3000);
+
+/* ─── Transfer NFT ──────────────────────────────────────────────────────── */
+let _transferTokenId = null;
+
+function openTransferModal(tokenId) {
+  _transferTokenId = tokenId;
+  const modal = document.getElementById("transferModal");
+  const sub   = document.getElementById("transferModalSub");
+  if (!modal) return;
+  if (sub) sub.textContent = `Sending NFT #${tokenId} — ${NFT_NAMES[tokenId] || ""}`;
+  document.getElementById("transferToAddr").value = "";
+  modal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeTransferModal(e) {
+  if (e && e.target !== document.getElementById("transferModal")) return;
+  document.getElementById("transferModal")?.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+async function confirmTransfer() {
+  const toAddr = document.getElementById("transferToAddr")?.value.trim();
+  if (!toAddr || !toAddr.startsWith("0x") || toAddr.length !== 42) {
+    showToast("Enter a valid 0x address.", "error"); return;
+  }
+  if (!nftContract || !userAddress) { showToast("Connect wallet first.", "error"); return; }
+  const btn = document.getElementById("transferConfirmBtn");
+  if (btn) { btn.disabled = true; btn.textContent = "Sending…"; }
+  try {
+    const tx = await nftContract.safeTransferFrom(userAddress, toAddr, _transferTokenId);
+    showToast("Transfer sent! Waiting for confirmation…");
+    await tx.wait();
+    showToast(`NFT #${_transferTokenId} sent to ${toAddr.slice(0,8)}…`);
+    closeTransferModal();
+    loadGallery();
+  } catch (e) {
+    showToast(e.code === 4001 ? "Transfer cancelled." : "Error: " + (e.reason || e.message), "error");
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = "Send NFT"; }
+  }
+}
+
+/* ─── NFT Certificate ───────────────────────────────────────────────────── */
+let _certTokenId = null;
+
+function openCertModal(tokenId) {
+  _certTokenId = tokenId;
+  const modal = document.getElementById("certModal");
+  if (!modal) return;
+  document.getElementById("certImg").src    = `images/${tokenId}.svg`;
+  document.getElementById("certTitle").textContent  = NFT_NAMES[tokenId] || `NFT #${tokenId}`;
+  document.getElementById("certOwner").textContent  = userAddress
+    ? `${userAddress.slice(0,10)}…${userAddress.slice(-6)}`
+    : "Unknown Owner";
+  document.getElementById("certToken").textContent  = `idkSomething NFT #${tokenId} (YNCNFT)`;
+  modal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeCertModal(e) {
+  if (e && e.target !== document.getElementById("certModal")) return;
+  document.getElementById("certModal")?.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+function downloadCert() {
+  const id    = _certTokenId;
+  const owner = userAddress || "Unknown";
+  const name  = NFT_NAMES[id] || `NFT #${id}`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f0a1e"/>
+      <stop offset="100%" stop-color="#1a0a2e"/>
+    </linearGradient>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="400" fill="url(#bg)" rx="16"/>
+  <rect x="2" y="2" width="596" height="396" fill="none" stroke="url(#g)" stroke-width="2" rx="14"/>
+  <text x="300" y="50" font-family="Arial,sans-serif" font-weight="900" font-size="11"
+        fill="#7c3aed" text-anchor="middle" letter-spacing="4">CERTIFICATE OF OWNERSHIP</text>
+  <text x="300" y="100" font-family="Arial,sans-serif" font-weight="900" font-size="28"
+        fill="#ffffff" text-anchor="middle">${name}</text>
+  <text x="300" y="140" font-family="Arial,sans-serif" font-size="12"
+        fill="#94a3b8" text-anchor="middle">This certifies that</text>
+  <text x="300" y="170" font-family="Courier New,monospace" font-weight="700" font-size="13"
+        fill="#a78bfa" text-anchor="middle">${owner.slice(0,20)}…</text>
+  <text x="300" y="200" font-family="Arial,sans-serif" font-size="12"
+        fill="#94a3b8" text-anchor="middle">is the rightful owner of</text>
+  <text x="300" y="228" font-family="Arial,sans-serif" font-weight="700" font-size="15"
+        fill="#ffffff" text-anchor="middle">idkSomething NFT #${id} (YNCNFT)</text>
+  <text x="300" y="255" font-family="Arial,sans-serif" font-size="11"
+        fill="#64748b" text-anchor="middle">on the Ethereum Sepolia blockchain</text>
+  <line x1="60" y1="282" x2="540" y2="282" stroke="rgba(124,58,237,0.3)" stroke-width="1"/>
+  <text x="150" y="315" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8" text-anchor="middle">Standard</text>
+  <text x="150" y="332" font-family="Arial,sans-serif" font-weight="700" font-size="12" fill="#fff" text-anchor="middle">ERC-721</text>
+  <text x="300" y="315" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8" text-anchor="middle">Utility</text>
+  <text x="300" y="332" font-family="Arial,sans-serif" font-weight="700" font-size="12" fill="#fff" text-anchor="middle">None</text>
+  <text x="450" y="315" font-family="Arial,sans-serif" font-size="10" fill="#94a3b8" text-anchor="middle">Network</text>
+  <text x="450" y="332" font-family="Arial,sans-serif" font-weight="700" font-size="12" fill="#fff" text-anchor="middle">Sepolia</text>
+  <text x="300" y="375" font-family="Arial,sans-serif" font-style="italic" font-size="11"
+        fill="#64748b" text-anchor="middle">— Giorgi Girgvliani, Creator</text>
+</svg>`;
+  const blob = new Blob([svg], { type: "image/svg+xml" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href     = url;
+  a.download = `YNCNFT-certificate-${id}.svg`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ─── Download NFT SVG ──────────────────────────────────────────────────── */
+function downloadNFT(tokenId) {
+  const a    = document.createElement("a");
+  a.href     = `images/${tokenId}.svg`;
+  a.download = `idkSomething-NFT-${tokenId}.svg`;
+  a.click();
+}
+
+/* ─── Copy to clipboard ─────────────────────────────────────────────────── */
+async function copyText(text, btn) {
+  try {
+    await navigator.clipboard.writeText(text);
+    const orig = btn?.textContent;
+    if (btn) { btn.textContent = "✓"; btn.style.color = "var(--green)"; }
+    showToast("Copied!");
+    setTimeout(() => { if (btn) { btn.textContent = orig; btn.style.color = ""; } }, 1500);
+  } catch { showToast("Copy failed.", "error"); }
+}
+
+/* ─── Tokenomics chart (about page) ────────────────────────────────────── */
+(function initTokenomicsChart() {
+  const canvas = document.getElementById("tokenomicsChart");
+  if (!canvas || typeof Chart === "undefined") return;
+  new Chart(canvas, {
+    type: "doughnut",
+    data: {
+      labels: ["Nothing", "More Nothing", "Vibes", "Team (also nothing)"],
+      datasets: [{
+        data: [40, 35, 15, 10],
+        backgroundColor: ["#7c3aed","#ec4899","#06b6d4","#f59e0b"],
+        borderColor: "transparent",
+        hoverOffset: 8,
+      }],
+    },
+    options: {
+      cutout: "68%",
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.label}: ${ctx.parsed}%`
+          }
+        }
+      },
+      animation: { animateRotate: true, duration: 1200 },
+    },
+  });
+})();

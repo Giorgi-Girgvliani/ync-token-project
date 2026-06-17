@@ -1,0 +1,14 @@
+{
+  "name": "idkSomething NFTs",
+  "short_name": "YNCNFT",
+  "description": "A Web3 NFT minting dApp on Ethereum Sepolia. 5 unique ERC-721 tokens that do absolutely nothing.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#080a12",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

@@ -15,4 +15,9 @@ const CONFIG = {
   SEPOLIA_CHAIN_ID: "0xaa36a7",   // 11155111
   MAX_SUPPLY: 5,
   MINT_PRICE_ETH: "0",            // "0" = free mint; change to "0.001" etc. if needed
+
+  // Unix timestamp of when the NFT contract was deployed.
+  // Find it on Etherscan: open your contract → Creation Tx → check the timestamp.
+  // Current estimate: June 17 2026. Update this to the exact value for accuracy.
+  DEPLOY_TIMESTAMP: 1750204800,
 };

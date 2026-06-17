@@ -1206,6 +1206,140 @@ img { display: block; max-width: 100%; }
 .lb-count { font-size: 0.82rem; font-weight: 700; color: var(--text); }
 
 /* =============================================
+   NOTHING COUNTER BAR
+   ============================================= */
+.nothing-counter-bar {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px;
+  background: rgba(124,58,237,0.08); border-bottom: 1px solid rgba(124,58,237,0.2);
+  padding: 10px 20px; text-align: center;
+}
+.nc-label { font-size: 0.8rem; color: var(--text-muted); }
+.nc-time {
+  font-size: 0.9rem; font-weight: 800; font-family: 'Courier New', monospace;
+  background: linear-gradient(135deg, var(--purple-light), var(--pink));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+/* =============================================
+   CARD OWNER ROW
+   ============================================= */
+.card-owner-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px 10px; border-top: 1px solid var(--card-border);
+  font-size: 0.72rem;
+}
+.card-owner-label { color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+.card-owner-addr  { color: var(--purple-light); font-family: 'Courier New',monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* =============================================
+   GALLERY CARD ACTIONS
+   ============================================= */
+.nft-card-actions {
+  display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+  padding: 8px 12px; border-top: 1px solid var(--card-border);
+}
+.nft-action-btn {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--r-sm); padding: 5px 9px;
+  font-size: 0.82rem; cursor: pointer; transition: all 0.2s;
+  color: var(--text);
+}
+.nft-action-btn:hover { border-color: rgba(124,58,237,0.4); background: rgba(124,58,237,0.1); }
+.transfer-btn:hover   { border-color: rgba(236,72,153,0.4); background: rgba(236,72,153,0.1); }
+.nft-etherscan { display: flex; align-items: center; gap: 4px; font-size: 0.75rem; padding: 5px 8px; }
+
+/* =============================================
+   CONTRACT INFO
+   ============================================= */
+.contract-info-grid { display: flex; flex-direction: column; gap: 0; }
+.contract-info-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; border-bottom: 1px solid var(--card-border);
+}
+.contract-info-row:last-child { border-bottom: none; }
+.contract-info-grid { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--r); overflow: hidden; }
+.ci-label  { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; flex: 0 0 120px; }
+.ci-value  { flex: 1; font-size: 0.88rem; color: var(--text); }
+.ci-value.mono { font-family: 'Courier New',monospace; color: var(--purple-light); }
+.ci-copy {
+  background: none; border: 1px solid var(--card-border); border-radius: 6px;
+  padding: 3px 7px; cursor: pointer; font-size: 0.8rem; color: var(--text-muted);
+  transition: all 0.2s;
+}
+.ci-copy:hover { border-color: var(--purple); color: var(--purple-light); }
+.ci-link  { color: var(--purple-light); font-size: 0.88rem; text-decoration: none; }
+.ci-link:hover { color: var(--pink); }
+
+/* =============================================
+   TOKENOMICS CHART
+   ============================================= */
+.tokenomics-wrap {
+  display: flex; align-items: center; gap: 40px; flex-wrap: wrap;
+  justify-content: center; margin-top: 24px;
+}
+.tokenomics-chart-wrap {
+  position: relative; width: 220px; height: 220px; flex-shrink: 0;
+}
+.tokenomics-chart-wrap canvas { position: absolute; inset: 0; }
+.chart-center-label {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.chart-center-num { font-size: 1.8rem; font-weight: 900; letter-spacing: -0.03em; color: var(--text); }
+.chart-center-sub { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+.tokenomics-legend { display: flex; flex-direction: column; gap: 10px; }
+.legend-item { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: var(--text-soft); }
+.legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+.legend-note { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; font-style: italic; }
+
+/* =============================================
+   CERTIFICATE MODAL
+   ============================================= */
+.cert-modal {
+  background: #0a0614; border: 1px solid rgba(124,58,237,0.3);
+  border-radius: 24px; width: 100%; max-width: 580px;
+  position: relative; overflow: hidden;
+  animation: modal-pop 0.3s cubic-bezier(.34,1.56,.64,1);
+}
+.cert-inner {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 40px 36px 28px; position: relative;
+  border: 2px solid transparent;
+  background: linear-gradient(#0a0614,#0a0614) padding-box,
+              linear-gradient(135deg,#7c3aed,#ec4899,#7c3aed) border-box;
+  border-radius: 22px; margin: 8px;
+}
+.cert-watermark {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%) rotate(-30deg);
+  font-size: 6rem; font-weight: 900; color: rgba(124,58,237,0.06);
+  pointer-events: none; user-select: none; white-space: nowrap;
+}
+.cert-nft-img { width: 100px; height: 100px; border-radius: 16px; margin-bottom: 20px; }
+.cert-badge-wrap { position: relative; z-index: 1; }
+.cert-issued { font-size: 0.68rem; color: var(--purple-light); text-transform: uppercase; letter-spacing: 0.2em; font-weight: 700; margin-bottom: 8px; }
+.cert-title { font-size: 1.5rem; font-weight: 900; text-align: center; margin-bottom: 16px; }
+.cert-owner-label { font-size: 0.78rem; color: var(--text-muted); text-align: center; margin-bottom: 4px; }
+.cert-owner { font-family: 'Courier New',monospace; font-size: 0.85rem; color: var(--purple-light); font-weight: 700; text-align: center; margin-bottom: 12px; }
+.cert-token { font-weight: 700; font-size: 0.95rem; text-align: center; margin-bottom: 4px; }
+.cert-divider { width: 100%; height: 1px; background: rgba(124,58,237,0.25); margin: 20px 0; }
+.cert-footer-row { display: flex; gap: 32px; justify-content: center; margin-bottom: 16px; }
+.cert-meta-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; text-align: center; }
+.cert-meta-val   { font-size: 0.9rem; font-weight: 700; text-align: center; }
+.cert-sig { font-size: 0.78rem; color: var(--text-muted); font-style: italic; text-align: center; }
+.cert-body { position: relative; z-index: 1; width: 100%; text-align: center; }
+.cert-actions { display: flex; gap: 10px; justify-content: center; padding: 16px 24px 24px; flex-wrap: wrap; }
+
+@media print {
+  body > *:not(.cert-modal) { display: none !important; }
+  .modal-overlay { position: static !important; background: none !important; }
+  .cert-modal { box-shadow: none; border: none; }
+  .cert-actions, .modal-close { display: none !important; }
+}
+
+/* =============================================
    RESPONSIVE ADDITIONS
    ============================================= */
 @media (max-width: 768px) {

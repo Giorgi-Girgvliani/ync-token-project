@@ -8,6 +8,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="style.css"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#7c3aed"/>
+  <meta name="description" content="View your idkSomething NFT collection on Ethereum Sepolia."/>
+  <meta property="og:title" content="My NFTs — idkSomething Collection"/>
+  <meta property="og:description" content="View and transfer your idkSomething ERC-721 NFTs."/>
+  <meta property="og:image" content="https://ync-token-project.pages.dev/images/5.svg"/>
+  <meta property="og:url" content="https://ync-token-project.pages.dev/gallery.html"/>
+  <meta name="twitter:card" content="summary_large_image"/>
 </head>
 <body>
 
@@ -141,6 +149,64 @@
   <div class="lightbox hidden" id="lightbox" onclick="closeLightbox()">
     <img id="lightboxImg" src="" alt=""/>
     <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  </div>
+
+  <!-- Transfer Modal -->
+  <div class="modal-overlay hidden" id="transferModal" onclick="closeTransferModal(event)">
+    <div class="receipt-modal">
+      <button class="modal-close" onclick="closeTransferModal()">✕</button>
+      <div class="receipt-header">
+        <div class="receipt-icon">📤</div>
+        <h2>Transfer NFT</h2>
+        <p id="transferModalSub">Send your NFT to another wallet address.</p>
+      </div>
+      <div style="padding:0 24px 24px">
+        <div class="ownership-form" style="flex-direction:column">
+          <input class="ownership-input" id="transferToAddr" type="text"
+            placeholder="Recipient 0x... address" autocomplete="off"/>
+          <button class="btn btn-primary" id="transferConfirmBtn"
+            onclick="confirmTransfer()" style="width:100%">
+            Send NFT
+          </button>
+        </div>
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-top:12px;text-align:center">
+          This is permanent and cannot be undone. You will pay gas.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Certificate Modal -->
+  <div class="modal-overlay hidden" id="certModal" onclick="closeCertModal(event)">
+    <div class="cert-modal" id="certContent">
+      <button class="modal-close" onclick="closeCertModal()" style="position:absolute;top:16px;right:16px;z-index:10">✕</button>
+      <div class="cert-inner" id="certInner">
+        <div class="cert-watermark">YNCNFT</div>
+        <div class="cert-badge-wrap">
+          <img id="certImg" src="" alt="" class="cert-nft-img"/>
+        </div>
+        <div class="cert-body">
+          <p class="cert-issued">Certificate of Ownership</p>
+          <h2 class="cert-title" id="certTitle"></h2>
+          <p class="cert-owner-label">This certifies that</p>
+          <p class="cert-owner" id="certOwner"></p>
+          <p class="cert-owner-label">is the rightful owner of</p>
+          <p class="cert-token" id="certToken"></p>
+          <p class="cert-owner-label">on the Ethereum Sepolia blockchain</p>
+          <div class="cert-divider"></div>
+          <div class="cert-footer-row">
+            <div><p class="cert-meta-label">Standard</p><p class="cert-meta-val">ERC-721</p></div>
+            <div><p class="cert-meta-label">Network</p><p class="cert-meta-val">Sepolia</p></div>
+            <div><p class="cert-meta-label">Utility</p><p class="cert-meta-val">None</p></div>
+          </div>
+          <p class="cert-sig">— Giorgi Girgvliani, Creator</p>
+        </div>
+      </div>
+      <div class="cert-actions">
+        <button class="btn btn-ghost btn-sm" onclick="window.print()">🖨️ Print</button>
+        <button class="btn btn-primary btn-sm" onclick="downloadCert()">⬇ Download SVG</button>
+      </div>
+    </div>
   </div>
 
   <div id="toast" class="toast hidden"></div>

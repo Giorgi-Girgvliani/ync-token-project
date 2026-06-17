@@ -8,6 +8,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="style.css"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#7c3aed"/>
+  <meta name="description" content="Mint idkSomething NFTs — 5 unique ERC-721 tokens on Ethereum Sepolia that do absolutely nothing. Free mint."/>
+  <meta property="og:title" content="idkSomething NFTs — Free Mint on Sepolia"/>
+  <meta property="og:description" content="5 unique ERC-721 tokens. 0 utility. 100% vibes. Connect MetaMask and mint for free."/>
+  <meta property="og:image" content="https://ync-token-project.pages.dev/images/5.svg"/>
+  <meta property="og:url" content="https://ync-token-project.pages.dev"/>
+  <meta property="og:type" content="website"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="idkSomething NFTs — Free Mint"/>
+  <meta name="twitter:description" content="5 ERC-721 NFTs. 0 utility. 100% vibes. Free mint on Sepolia."/>
+  <meta name="twitter:image" content="https://ync-token-project.pages.dev/images/5.svg"/>
 </head>
 <body>
 
@@ -45,6 +57,9 @@
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V8l9-6 9 6v14"/><path d="M9 22V12h6v10"/></svg>
         <span id="gasPrice">—</span> gwei
       </div>
+      <button class="dark-mode-btn" id="soundBtn" onclick="toggleSound()" title="Toggle sound">
+        <span id="soundIcon">🔊</span>
+      </button>
       <button class="dark-mode-btn" id="darkModeBtn" onclick="toggleDarkMode()" title="Toggle theme">
         <span id="darkModeIcon">☀️</span>
       </button>
@@ -162,6 +177,13 @@
     </div>
   </header>
 
+  <!-- Nothing counter -->
+  <div class="nothing-counter-bar" id="nothingCounterBar">
+    <span class="nc-label">This contract has done nothing for</span>
+    <span class="nc-time" id="nothingCounter">—</span>
+    <span class="nc-label">and counting.</span>
+  </div>
+
   <!-- Stats bar -->
   <section class="stats-bar reveal">
     <div class="stat-counter"><span class="stat-num" data-target="5">0</span><span class="stat-label">Unique NFTs</span></div>
@@ -204,25 +226,30 @@
       </div>
 
       <div class="preview-grid" id="collectionGrid">
-        <div class="preview-card tilt-card holo-card" data-rarity="Common" onclick="openNFTModal(1)">
+        <div class="preview-card tilt-card holo-card" data-rarity="Common" data-id="1" onclick="openNFTModal(1)">
           <div class="preview-img-wrap"><img src="images/1.svg" alt="NFT #1"/><div class="shimmer"></div><div class="holo-overlay"></div><div class="preview-overlay"><span>View Details</span></div></div>
           <div class="preview-label">#1 · The Void <span class="rarity common">Common</span></div>
+          <div class="card-owner-row"><span class="card-owner-label">Owner:</span><span class="card-owner-addr" id="owner-1">—</span></div>
         </div>
-        <div class="preview-card tilt-card holo-card" data-rarity="Common" onclick="openNFTModal(2)">
+        <div class="preview-card tilt-card holo-card" data-rarity="Common" data-id="2" onclick="openNFTModal(2)">
           <div class="preview-img-wrap"><img src="images/2.svg" alt="NFT #2"/><div class="shimmer"></div><div class="holo-overlay"></div><div class="preview-overlay"><span>View Details</span></div></div>
           <div class="preview-label">#2 · The Silence <span class="rarity common">Common</span></div>
+          <div class="card-owner-row"><span class="card-owner-label">Owner:</span><span class="card-owner-addr" id="owner-2">—</span></div>
         </div>
-        <div class="preview-card tilt-card holo-card" data-rarity="Uncommon" onclick="openNFTModal(3)">
+        <div class="preview-card tilt-card holo-card" data-rarity="Uncommon" data-id="3" onclick="openNFTModal(3)">
           <div class="preview-img-wrap"><img src="images/3.svg" alt="NFT #3"/><div class="shimmer"></div><div class="holo-overlay"></div><div class="preview-overlay"><span>View Details</span></div></div>
           <div class="preview-label">#3 · Pure Vibes <span class="rarity uncommon">Uncommon</span></div>
+          <div class="card-owner-row"><span class="card-owner-label">Owner:</span><span class="card-owner-addr" id="owner-3">—</span></div>
         </div>
-        <div class="preview-card tilt-card holo-card" data-rarity="Rare" onclick="openNFTModal(4)">
+        <div class="preview-card tilt-card holo-card" data-rarity="Rare" data-id="4" onclick="openNFTModal(4)">
           <div class="preview-img-wrap"><img src="images/4.svg" alt="NFT #4" id="nft4img"/><div class="shimmer"></div><div class="holo-overlay"></div><div class="preview-overlay"><span>View Details</span></div></div>
           <div class="preview-label">#4 · The Matrix <span class="rarity rare">Rare</span></div>
+          <div class="card-owner-row"><span class="card-owner-label">Owner:</span><span class="card-owner-addr" id="owner-4">—</span></div>
         </div>
-        <div class="preview-card tilt-card holo-card" data-rarity="Legendary" onclick="openNFTModal(5)">
+        <div class="preview-card tilt-card holo-card" data-rarity="Legendary" data-id="5" onclick="openNFTModal(5)">
           <div class="preview-img-wrap"><img src="images/5.svg" alt="NFT #5"/><div class="shimmer"></div><div class="holo-overlay"></div><div class="preview-overlay"><span>View Details</span></div></div>
           <div class="preview-label">#5 · Legendary Nothing <span class="rarity legendary">Legendary</span></div>
+          <div class="card-owner-row"><span class="card-owner-label">Owner:</span><span class="card-owner-addr" id="owner-5">—</span></div>
         </div>
       </div>
     </div>

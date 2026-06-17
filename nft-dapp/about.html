@@ -8,6 +8,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="style.css"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#7c3aed"/>
+  <meta name="description" content="About idkSomething NFTs — created by Giorgi Girgvliani. A Web3 dApp that does nothing."/>
+  <meta property="og:title" content="About — idkSomething NFTs"/>
+  <meta property="og:description" content="The origin story of a token that does nothing, by Giorgi Girgvliani."/>
+  <meta property="og:image" content="https://ync-token-project.pages.dev/images/5.svg"/>
+  <meta name="twitter:card" content="summary_large_image"/>
 </head>
 <body>
 
@@ -188,6 +195,72 @@
     </div>
   </section>
 
+  <!-- Contract Info -->
+  <section class="section reveal">
+    <div class="section-inner narrow">
+      <h2 class="section-title">Contract <span class="gradient-text">Details</span></h2>
+      <p class="section-sub">Everything you need to verify these NFTs on-chain.</p>
+      <div class="contract-info-grid">
+        <div class="contract-info-row">
+          <span class="ci-label">NFT Contract</span>
+          <span class="ci-value mono" id="ciNFT">0x70FC19...8e335</span>
+          <button class="ci-copy" onclick="copyText(CONFIG.NFT_CONTRACT, this)" title="Copy">⎘</button>
+          <a class="ci-link" href="https://sepolia.etherscan.io/address/0x70FC19a8f0B682c4d25Ce3ceFD107aB1AD48e335" target="_blank" rel="noopener">↗</a>
+        </div>
+        <div class="contract-info-row">
+          <span class="ci-label">YNC Token</span>
+          <span class="ci-value mono">0x6601b1...862A</span>
+          <button class="ci-copy" onclick="copyText(CONFIG.YNC_CONTRACT, this)" title="Copy">⎘</button>
+          <a class="ci-link" href="https://sepolia.etherscan.io/address/0x6601b104C3472CB3250fDB1B11b329ac81C5862A" target="_blank" rel="noopener">↗</a>
+        </div>
+        <div class="contract-info-row">
+          <span class="ci-label">Standard</span>
+          <span class="ci-value">ERC-721 (Non-Fungible Token)</span>
+        </div>
+        <div class="contract-info-row">
+          <span class="ci-label">Network</span>
+          <span class="ci-value">Ethereum Sepolia Testnet (Chain ID: 11155111)</span>
+        </div>
+        <div class="contract-info-row">
+          <span class="ci-label">Max Supply</span>
+          <span class="ci-value">5 NFTs — hardcoded, immutable</span>
+        </div>
+        <div class="contract-info-row">
+          <span class="ci-label">Mint Price</span>
+          <span class="ci-value">Free (0 ETH) — pay gas only</span>
+        </div>
+        <div class="contract-info-row">
+          <span class="ci-label">Metadata</span>
+          <span class="ci-value">Hosted on Cloudflare Pages (IPFS-style URIs)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tokenomics -->
+  <section class="section section-dark reveal">
+    <div class="section-inner narrow">
+      <h2 class="section-title"><span class="gradient-text">Tokenomics</span></h2>
+      <p class="section-sub">A transparent breakdown of where the value goes.</p>
+      <div class="tokenomics-wrap">
+        <div class="tokenomics-chart-wrap">
+          <canvas id="tokenomicsChart" width="220" height="220"></canvas>
+          <div class="chart-center-label">
+            <span class="chart-center-num">100%</span>
+            <span class="chart-center-sub">Nothing</span>
+          </div>
+        </div>
+        <div class="tokenomics-legend">
+          <div class="legend-item"><span class="legend-dot" style="background:#7c3aed"></span><span>Nothing (40%)</span></div>
+          <div class="legend-item"><span class="legend-dot" style="background:#ec4899"></span><span>More Nothing (35%)</span></div>
+          <div class="legend-item"><span class="legend-dot" style="background:#06b6d4"></span><span>Vibes (15%)</span></div>
+          <div class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span><span>Team (10%)</span></div>
+          <p class="legend-note">* Team allocation also does nothing.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Footer -->
   <footer class="footer">
     <div class="footer-inner">
@@ -198,6 +271,7 @@
   </footer>
 
   <div id="toast" class="toast hidden"></div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="config.js"></script>
   <script src="particles.js"></script>
   <script src="script.js"></script>
