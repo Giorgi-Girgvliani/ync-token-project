@@ -7,6 +7,7 @@ const NFT_ABI = [
   "function tokenURI(uint256 tokenId) view returns (string)",
   "function name() view returns (string)",
   "event Minted(address indexed to, uint256 tokenId)",
+  "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
 ];
 
 const ERC20_ABI = [
@@ -264,10 +265,8 @@ async function mint() {
 /* ─── Gallery Page ──────────────────────────────────────────────────────── */
 async function initGalleryPage() {
   document.getElementById("galleryNotConnected")?.classList.add("hidden");
-  document.getElementById("galleryLoading")?.classList.remove("hidden");
-
   try {
-    await loadGallery();
+    await loadGallery(true);
   } catch (err) {
     console.error("Gallery error:", err);
     document.getElementById("galleryLoading")?.classList.add("hidden");
@@ -275,11 +274,14 @@ async function initGalleryPage() {
   }
 }
 
-async function loadGallery() {
+async function loadGallery(showSkeleton = false) {
   const loading = document.getElementById("galleryLoading");
   const grid    = document.getElementById("galleryGrid");
   const empty   = document.getElementById("galleryEmpty");
   const stats   = document.getElementById("galleryStats");
+
+  if (showSkeleton) loading?.classList.remove("hidden");
+  else loading?.classList.add("hidden");
 
   if (!nftContract) {
     loading?.classList.add("hidden");
@@ -575,10 +577,12 @@ async function refreshActivity() {
     return;
   }
   try {
-    const p   = await getReadProvider();
-    const con = new ethers.Contract(CONFIG.NFT_CONTRACT, NFT_ABI, p);
-    const filter = con.filters.Minted();
-    const events = await con.queryFilter(filter, -5000);
+    const p    = await getReadProvider();
+    const con  = new ethers.Contract(CONFIG.NFT_CONTRACT, NFT_ABI, p);
+    const ZERO = "0x0000000000000000000000000000000000000000";
+
+    // Use Transfer events: from=0x0 means mint, otherwise a transfer
+    const events = await con.queryFilter(con.filters.Transfer(), -10000);
 
     if (!events.length) {
       feed.innerHTML = `<div class="activity-empty">No mints yet. Be the first!</div>`;
@@ -588,19 +592,25 @@ async function refreshActivity() {
     feed.innerHTML = "";
     const reversed = [...events].reverse().slice(0, 10);
     for (const ev of reversed) {
-      const addr    = ev.args.to;
+      const from    = ev.args.from.toLowerCase();
+      const to      = ev.args.to;
       const tokenId = ev.args.tokenId.toNumber();
-      const short   = `${addr.slice(0,6)}…${addr.slice(-4)}`;
+      const isMint  = from === ZERO;
+      const short   = `${to.slice(0,6)}…${to.slice(-4)}`;
       const block   = await p.getBlock(ev.blockNumber);
       const time    = block ? new Date(block.timestamp * 1000).toLocaleTimeString() : "";
+      const action  = isMint ? "minted" : "received";
+      const color   = isMint
+        ? "linear-gradient(135deg,#7c3aed,#ec4899)"
+        : "linear-gradient(135deg,#0891b2,#10b981)";
 
       const item = document.createElement("div");
       item.className = "activity-item";
       item.innerHTML = `
-        <div class="activity-avatar" style="background:linear-gradient(135deg,#7c3aed,#ec4899)">${NFT_EMOJIS[tokenId]||"🎨"}</div>
+        <div class="activity-avatar" style="background:${color}">${NFT_EMOJIS[tokenId]||"🎨"}</div>
         <div class="activity-text">
           <span class="activity-addr">${short}</span>
-          <strong> minted #${tokenId} — ${NFT_NAMES[tokenId]||"?"}</strong>
+          <strong> ${action} #${tokenId} — ${NFT_NAMES[tokenId]||"?"}</strong>
         </div>
         <span class="activity-time">${time}</span>
       `;
@@ -994,13 +1004,19 @@ async function loadLeaderboard() {
     const total = sup.toNumber();
     if (!total) { el.innerHTML = `<div class="activity-empty">No NFTs minted yet.</div>`; return; }
 
+    // Build owner map from Transfer events (accurate after transfers/sales)
+    // Mint = Transfer from 0x0; transfer out decrements the sender
     const ownerMap = {};
-    // Build owner map from on-chain Minted events
-    const events = await con.queryFilter(con.filters.Minted(), -10000);
+    const ZERO = "0x0000000000000000000000000000000000000000";
+    const events = await con.queryFilter(con.filters.Transfer(), -50000);
     events.forEach(ev => {
-      const addr = ev.args.to.toLowerCase();
-      ownerMap[addr] = (ownerMap[addr] || 0) + 1;
+      const from = ev.args.from.toLowerCase();
+      const to   = ev.args.to.toLowerCase();
+      if (from !== ZERO) ownerMap[from] = Math.max(0, (ownerMap[from] || 0) - 1);
+      if (to   !== ZERO) ownerMap[to]   = (ownerMap[to]   || 0) + 1;
     });
+    // Remove addresses with 0 tokens
+    Object.keys(ownerMap).forEach(k => { if (ownerMap[k] === 0) delete ownerMap[k]; });
 
     const sorted = Object.entries(ownerMap).sort((a,b) => b[1]-a[1]);
     if (!sorted.length) { el.innerHTML = `<div class="activity-empty">No data yet.</div>`; return; }
