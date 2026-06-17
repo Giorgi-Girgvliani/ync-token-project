@@ -187,6 +187,9 @@ async function renderElectionCard(contract, id, container) {
     </div>`}
   `;
   container.appendChild(card);
+  // Cards are injected after the scroll-reveal IIFE already ran,
+  // so manually mark them visible so they aren't stuck at opacity:0
+  requestAnimationFrame(() => card.classList.add("visible"));
 
   // Live countdown
   if (isOpen) {
