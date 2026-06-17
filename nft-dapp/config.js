@@ -19,6 +19,16 @@ const CONFIG = {
   // Paste your Voting contract address here after deploying voting.sol in Remix
   VOTING_CONTRACT: "0x537109bD9703e4214C02F855493ceA378994BeAD",
 
+  // Paste your MessageBoard contract address after deploying MessageBoard.sol
+  BOARD_CONTRACT: "0xd8b934580fcE35a11B58C6D73aDeE468a2833fa8",
+
+  // Paste your Lottery contract address after deploying Lottery.sol
+  LOTTERY_CONTRACT: "0xd9145CCE52D386f254917e481eB44e9943F39138",
+
+  // Paste your NFTAuction contract address after deploying Auction.sol
+  // (constructor arg = NFT_CONTRACT address above)
+  AUCTION_CONTRACT: "0x7774C71fd957a624AaeF8Dfe2b5Af51dA7Fa96ED",
+
   // Unix timestamp of when the NFT contract was deployed.
   // Find it on Etherscan: open your contract → Creation Tx → check the timestamp.
   // Current estimate: June 17 2026. Update this to the exact value for accuracy.

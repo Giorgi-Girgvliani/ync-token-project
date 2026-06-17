@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blockchain Lottery — idkSomething</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#7c3aed"/>
+  <meta name="description" content="Transparent blockchain lottery on Ethereum Sepolia. Enter free, win ETH. Results are on-chain and verifiable."/>
+  <meta property="og:title" content="Blockchain Lottery"/>
+  <meta property="og:description" content="Enter for free. Admin draws winner on-chain. Fully transparent on Etherscan."/>
+  <meta property="og:image" content="https://ync-token-project.pages.dev/images/5.svg"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+</head>
+<body>
+
+  <div id="cursorTrail" aria-hidden="true"></div>
+  <canvas id="particleCanvas" class="particle-canvas" aria-hidden="true"></canvas>
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb1" style="background:#f59e0b"></div>
+    <div class="orb orb2" style="background:#7c3aed"></div>
+    <div class="orb orb3" style="background:#ef4444"></div>
+  </div>
+  <div class="grid-overlay" aria-hidden="true"></div>
+  <div class="grain-overlay" aria-hidden="true"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo" id="navLogo"><span class="logo-dot"></span>YNCNFT</a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html"    class="nav-link">Mint</a>
+      <a href="gallery.html"  class="nav-link">My NFTs</a>
+      <a href="voting.html"   class="nav-link">Vote</a>
+      <a href="messages.html" class="nav-link">Board</a>
+      <a href="lottery.html"  class="nav-link active">Lottery</a>
+      <a href="auction.html"  class="nav-link">Auction</a>
+      <a href="about.html"    class="nav-link">About</a>
+      <a href="roadmap.html"  class="nav-link">Roadmap</a>
+    </div>
+    <div class="nav-right">
+      <div class="gas-pill" id="gasPill" title="Current Sepolia gas price">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V8l9-6 9 6v14"/><path d="M9 22V12h6v10"/></svg>
+        <span id="gasPrice">—</span> gwei
+      </div>
+      <button class="dark-mode-btn" id="darkModeBtn" onclick="toggleDarkMode()" title="Toggle theme">
+        <span id="darkModeIcon">☀️</span>
+      </button>
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="page-header">
+    <div class="hero-inner">
+      <div class="badge"><span class="badge-dot" style="background:#f59e0b"></span>On-Chain · Transparent · Sepolia Testnet</div>
+      <h1 class="page-title">Blockchain <span class="gradient-text" style="background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Lottery</span></h1>
+      <p class="page-subtitle">
+        Enter for free. Admin funds the prize and draws a winner on-chain.<br/>
+        Every result is verifiable on Etherscan — no house tricks possible.
+      </p>
+
+      <div id="lotteryNotConnected" style="margin-top:24px">
+        <button class="btn btn-primary btn-lg glow-btn" onclick="connectWallet()" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/></svg>
+          Connect to Enter
+        </button>
+      </div>
+
+      <div id="lotteryConnected" class="hidden" style="margin-top:16px">
+        <div class="wallet-row" style="justify-content:center">
+          <div class="wallet-pill">
+            <span class="status-dot"></span>
+            <span id="lotteryWalletShort" class="mono">—</span>
+          </div>
+          <span id="lotteryAdminBadge" class="hidden" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:800;letter-spacing:0.05em">⚡ ADMIN</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Current Round -->
+  <section class="section reveal">
+    <div class="section-inner">
+      <div class="activity-header">
+        <div>
+          <h2 class="section-title">Current <span class="gradient-text">Round</span></h2>
+          <p class="section-sub">One entry per wallet. Winner selected by on-chain randomness.</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="loadCurrentRound()">↺ Refresh</button>
+      </div>
+
+      <div id="lotteryLoading">
+        <div class="skeleton" style="height:200px;border-radius:24px"></div>
+      </div>
+
+      <div id="noRoundState" class="empty-state hidden">
+        <div class="empty-icon">🎰</div>
+        <h2>No active round</h2>
+        <p id="noRoundMsg">Admin has not started a round yet. Check back soon!</p>
+      </div>
+
+      <!-- Current round card -->
+      <div id="currentRoundCard" class="lottery-round-card hidden">
+        <div class="lottery-round-header">
+          <div>
+            <div class="lottery-round-id" id="roundLabel">Round #0</div>
+            <div class="lottery-round-status" id="roundStatus">Open</div>
+          </div>
+          <div class="lottery-prize-box">
+            <div class="lottery-prize-label">Prize Pool</div>
+            <div class="lottery-prize-amount" id="roundPrize">0 ETH</div>
+          </div>
+        </div>
+
+        <div class="lottery-stats-row">
+          <div class="lottery-stat">
+            <strong id="roundPlayerCount">0</strong>
+            <span>participants</span>
+          </div>
+          <div class="lottery-stat">
+            <strong id="roundOdds">—</strong>
+            <span>your odds</span>
+          </div>
+          <div class="lottery-stat">
+            <strong id="roundStarted">—</strong>
+            <span>started</span>
+          </div>
+        </div>
+
+        <div id="enterSection" style="margin-top:20px">
+          <button class="btn btn-primary btn-lg glow-btn" id="enterBtn" onclick="enterLottery()"
+            style="width:100%;background:linear-gradient(135deg,#f59e0b,#d97706)">
+            🎰 Enter Lottery (Free)
+          </button>
+          <p id="alreadyEnteredMsg" class="hidden" style="text-align:center;margin-top:12px;color:#10b981;font-weight:700">
+            ✓ You're in! Good luck.
+          </p>
+        </div>
+
+        <div id="drawnSection" class="hidden" style="margin-top:20px">
+          <div class="lottery-winner-banner">
+            <div class="lottery-winner-crown">🏆</div>
+            <div>
+              <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Winner</div>
+              <div class="lottery-winner-addr mono" id="roundWinner">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Players list -->
+      <div id="playersSection" class="hidden" style="margin-top:24px">
+        <h3 style="font-size:0.85rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px">
+          Participants (<span id="playersCount">0</span>)
+        </h3>
+        <div id="playersList" class="players-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Past Rounds -->
+  <section class="section section-dark reveal">
+    <div class="section-inner">
+      <h2 class="section-title">Past <span class="gradient-text">Winners</span></h2>
+      <p class="section-sub">All draws are permanently recorded on-chain.</p>
+      <div id="pastRoundsList" class="past-rounds-list">
+        <div class="activity-empty">No completed rounds yet.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Admin Panel -->
+  <section class="section reveal" id="lotteryAdminPanel" style="display:none">
+    <div class="section-inner narrow">
+      <div class="admin-form">
+        <h3 class="admin-form-title">⚡ Admin Panel</h3>
+
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <!-- Start new round -->
+          <div>
+            <label class="admin-label">Start New Round</label>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:10px">Fund the prize pool with ETH (or 0 for a prize-less demo round).</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <input class="ownership-input" id="prizeFund" type="number" step="0.001" min="0" placeholder="Prize ETH (e.g. 0.01)" style="flex:1;min-width:140px"/>
+              <button class="btn btn-primary" id="startRoundBtn" onclick="startRound()">Start Round</button>
+            </div>
+          </div>
+
+          <!-- Draw winner -->
+          <div>
+            <label class="admin-label">Draw Winner</label>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:10px">Draws a winner from the current round using on-chain randomness.</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <select id="drawRoundSelect" class="ownership-input" style="flex:1;min-width:140px;padding:10px 14px">
+                <option value="">Select round…</option>
+              </select>
+              <button class="btn btn-ghost" id="drawBtn" onclick="drawWinner()" style="border-color:rgba(245,158,11,0.4);color:#f59e0b">Draw Winner</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Win receipt modal -->
+  <div class="modal-overlay hidden" id="winReceiptModal" onclick="closeWinReceipt(event)">
+    <div class="receipt-modal">
+      <button class="modal-close" onclick="closeWinReceipt()">✕</button>
+      <div class="receipt-header">
+        <div class="receipt-icon">🎰</div>
+        <h2>Winner Drawn!</h2>
+        <p>The blockchain has spoken.</p>
+      </div>
+      <div class="receipt-body" id="winReceiptBody"></div>
+      <div class="receipt-actions">
+        <a id="winEtherscan" href="#" target="_blank" class="btn btn-primary btn-sm">View on Etherscan ↗</a>
+        <button class="btn btn-ghost btn-sm" onclick="closeWinReceipt()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+  <script src="config.js"></script>
+  <script src="particles.js"></script>
+  <script src="script.js"></script>
+  <script src="lottery.js"></script>
+</body>
+</html>

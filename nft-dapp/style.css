@@ -979,6 +979,17 @@ img { display: block; max-width: 100%; }
 }
 .ownership-input:focus { border-color: rgba(124,58,237,0.5); }
 .ownership-input::placeholder { color: var(--text-muted); font-family: inherit; }
+select.ownership-input {
+  color-scheme: dark;
+  cursor: pointer;
+  appearance: auto;
+}
+select.ownership-input option {
+  background: #1a1130;
+  color: #f8fafc;
+  font-family: inherit;
+  padding: 8px;
+}
 .ownership-result {
   margin-top: 20px; background: var(--card-bg); border: 1px solid var(--card-border);
   border-radius: var(--r); padding: 20px;
@@ -1429,6 +1440,127 @@ img { display: block; max-width: 100%; }
 .admin-label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
 textarea.ownership-input { font-family: inherit; line-height: 1.6; }
 
+/* =============================================
+   MESSAGE BOARD
+   ============================================= */
+.board-compose { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--r); padding: 16px; margin-bottom: 12px; }
+.board-textarea { width: 100%; resize: vertical; font-family: inherit; font-size: 0.95rem; line-height: 1.6; background: transparent; border: none; outline: none; color: var(--text-main); padding: 0; }
+.board-textarea::placeholder { color: var(--text-muted); }
+.board-compose-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--card-border); }
+.board-char-count { font-size: 0.75rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.board-immutability-note { display: flex; align-items: flex-start; gap: 8px; font-size: 0.78rem; color: var(--text-muted); background: rgba(6,182,212,0.06); border: 1px solid rgba(6,182,212,0.2); border-radius: var(--r-sm); padding: 10px 14px; }
+.board-immutability-note svg { flex-shrink: 0; margin-top: 1px; color: #06b6d4; }
+
+.board-list { display: flex; flex-direction: column; gap: 10px; }
+.board-msg-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--r-sm); padding: 14px 16px;
+  transition: border-color 0.2s;
+}
+.board-msg-card:hover { border-color: rgba(6,182,212,0.3); }
+.board-msg-card.board-msg-deleted { opacity: 0.5; border-style: dashed; }
+.board-msg-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.board-msg-author-row { display: flex; align-items: center; gap: 10px; }
+.board-msg-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; color: rgba(255,255,255,0.8); flex-shrink: 0; }
+.board-msg-author { font-size: 0.8rem; font-weight: 700; color: var(--purple-light); text-decoration: none; }
+.board-msg-author:hover { text-decoration: underline; }
+.board-msg-time { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+.board-msg-actions { display: flex; align-items: center; gap: 8px; }
+.board-etherscan-link { font-size: 0.75rem; color: var(--text-muted); text-decoration: none; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--card-border); transition: all 0.15s; }
+.board-etherscan-link:hover { color: var(--purple-light); border-color: rgba(124,58,237,0.4); }
+.board-delete-btn { background: none; border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; color: #ef4444; cursor: pointer; padding: 3px 8px; font-size: 0.72rem; transition: all 0.15s; }
+.board-delete-btn:hover { background: rgba(239,68,68,0.1); }
+.board-msg-content { font-size: 0.9rem; line-height: 1.6; word-break: break-word; white-space: pre-wrap; margin: 0; }
+.board-deleted-content { font-style: italic; color: var(--text-muted); font-size: 0.82rem; }
+.board-msg-footer { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.board-msg-id { font-size: 0.68rem; color: var(--text-muted); }
+.board-deleted-badge { background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.25); padding: 1px 8px; border-radius: 999px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+.board-you-tag { background: rgba(124,58,237,0.2); color: var(--purple-light); padding: 2px 7px; border-radius: 999px; font-size: 0.65rem; font-weight: 700; }
+
+/* =============================================
+   LOTTERY
+   ============================================= */
+.lottery-round-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--r); padding: 24px; max-width: 600px; margin: 0 auto;
+  transition: opacity 0.4s, transform 0.4s;
+}
+.lottery-round-card.visible { opacity: 1; transform: none; }
+.lottery-round-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.lottery-round-id { font-size: 0.75rem; color: var(--text-muted); font-family: monospace; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+.lottery-round-status { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+.lottery-prize-box { text-align: right; }
+.lottery-prize-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.lottery-prize-amount { font-size: 2rem; font-weight: 900; color: #f59e0b; line-height: 1; }
+.lottery-stats-row { display: flex; gap: 24px; padding: 16px 0; border-top: 1px solid var(--card-border); border-bottom: 1px solid var(--card-border); margin-bottom: 20px; }
+.lottery-stat { display: flex; flex-direction: column; }
+.lottery-stat strong { font-size: 1.4rem; font-weight: 900; line-height: 1.1; }
+.lottery-stat span { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.lottery-winner-banner { display: flex; align-items: center; gap: 16px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); border-radius: var(--r-sm); padding: 16px; }
+.lottery-winner-crown { font-size: 2rem; }
+.lottery-winner-addr { font-size: 1rem; font-weight: 700; color: #f59e0b; word-break: break-all; }
+
+.players-list { display: flex; flex-direction: column; gap: 6px; }
+.player-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--card-bg); border-radius: var(--r-sm); border: 1px solid var(--card-border); }
+.player-num { font-size: 0.72rem; color: var(--text-muted); font-weight: 700; width: 20px; }
+.player-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.62rem; font-weight: 800; color: rgba(255,255,255,0.8); flex-shrink: 0; }
+.player-addr { font-size: 0.82rem; text-decoration: none; color: var(--text-soft); }
+.player-addr:hover { color: var(--purple-light); }
+
+.past-rounds-list { display: flex; flex-direction: column; gap: 8px; }
+.past-round-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--r-sm); flex-wrap: wrap; }
+.past-round-id { font-size: 0.75rem; color: var(--text-muted); font-family: monospace; font-weight: 700; min-width: 70px; }
+.past-round-info { flex: 1; display: flex; align-items: center; gap: 8px; }
+.past-round-winner { font-size: 0.85rem; font-weight: 700; }
+.past-round-prize { font-size: 0.85rem; color: #f59e0b; font-weight: 700; }
+.past-round-count { font-size: 0.72rem; color: var(--text-muted); }
+
+/* =============================================
+   AUCTION
+   ============================================= */
+.auction-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 16px; }
+.auction-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--r); overflow: hidden; transition: border-color 0.2s, transform 0.2s;
+}
+.auction-card:hover { border-color: rgba(236,72,153,0.35); transform: translateY(-2px); }
+.auction-card-img-wrap { position: relative; aspect-ratio: 1; overflow: hidden; background: rgba(0,0,0,0.3); }
+.auction-card-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.auction-card-badge { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); color: #fff; font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.15); }
+.auction-card-body { padding: 16px; }
+.auction-card-id-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.auction-id-label { font-size: 0.72rem; color: var(--text-muted); font-family: monospace; font-weight: 700; }
+.auction-bid-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.auction-bid-label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
+.auction-bid-amount { font-size: 1.5rem; font-weight: 900; line-height: 1; }
+.auction-bidder { font-size: 0.7rem; color: var(--text-muted); margin-top: 3px; }
+.auction-countdown { font-size: 1rem; font-weight: 800; color: #f59e0b; font-family: monospace; text-align: right; }
+
+.settled-list { display: flex; flex-direction: column; gap: 8px; }
+.settled-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--r-sm); flex-wrap: wrap; }
+.settled-thumb { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+.settled-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.settled-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+.settled-winner { font-size: 0.85rem; font-weight: 700; }
+.settled-no-bids { font-size: 0.82rem; color: var(--text-muted); font-style: italic; }
+.settled-amount { font-size: 0.9rem; font-weight: 700; color: #10b981; }
+
+.bid-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: rgba(0,0,0,0.2); border-radius: var(--r-sm); padding: 14px; border: 1px solid var(--card-border); }
+.bid-info-cell { display: flex; flex-direction: column; gap: 3px; }
+.bid-info-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.bid-info-value { font-size: 0.9rem; font-weight: 800; }
+
+.withdraw-list { display: flex; flex-direction: column; gap: 10px; }
+.withdraw-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--r-sm); padding: 12px 14px; }
+
+/* =============================================
+   RESPONSIVE (updated)
+   ============================================= */
+@media (max-width: 900px) {
+  .nav-links { gap: 4px; }
+  .nav-link { font-size: 0.78rem; padding: 6px 8px; }
+}
+
 @media (max-width: 768px) {
   .nft-modal-img-wrap { width: 100%; border-radius: 24px 24px 0 0; aspect-ratio: auto; height: 220px; }
   .nft-modal-inner { flex-direction: column; }
@@ -1436,6 +1568,9 @@ textarea.ownership-input { font-family: inherit; line-height: 1.6; }
   .stat-counter { border-right: none; border-bottom: 1px solid var(--card-border); padding: 12px 0; width: 45%; }
   .stat-counter:nth-child(odd) { align-items: flex-start; }
   .gas-pill { display: none; }
+  .lottery-stats-row { gap: 12px; }
+  .lottery-prize-amount { font-size: 1.5rem; }
+  .auction-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 480px) {
   .stat-counter { width: 100%; border-bottom: 1px solid var(--card-border); align-items: center; }
@@ -1443,4 +1578,6 @@ textarea.ownership-input { font-family: inherit; line-height: 1.6; }
   .ownership-input { width: 100%; }
   .mint-extra-btns { flex-direction: column; }
   .receipt-actions { flex-direction: column; align-items: center; }
+  .board-compose-footer { flex-direction: column; gap: 10px; align-items: flex-end; }
+  .bid-info-grid { grid-template-columns: 1fr; }
 }

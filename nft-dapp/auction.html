@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NFT Auction House — idkSomething</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#7c3aed"/>
+  <meta name="description" content="Bid on idkSomething NFTs in a fully on-chain English auction on Ethereum Sepolia."/>
+  <meta property="og:title" content="NFT Auction House"/>
+  <meta property="og:description" content="Decentralized NFT auctions on Ethereum Sepolia. Bid, win, own. No middlemen."/>
+  <meta property="og:image" content="https://ync-token-project.pages.dev/images/5.svg"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+</head>
+<body>
+
+  <div id="cursorTrail" aria-hidden="true"></div>
+  <canvas id="particleCanvas" class="particle-canvas" aria-hidden="true"></canvas>
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb1" style="background:#7c3aed"></div>
+    <div class="orb orb2" style="background:#ec4899"></div>
+    <div class="orb orb3" style="background:#06b6d4"></div>
+  </div>
+  <div class="grid-overlay" aria-hidden="true"></div>
+  <div class="grain-overlay" aria-hidden="true"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo" id="navLogo"><span class="logo-dot"></span>YNCNFT</a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html"    class="nav-link">Mint</a>
+      <a href="gallery.html"  class="nav-link">My NFTs</a>
+      <a href="voting.html"   class="nav-link">Vote</a>
+      <a href="messages.html" class="nav-link">Board</a>
+      <a href="lottery.html"  class="nav-link">Lottery</a>
+      <a href="auction.html"  class="nav-link active">Auction</a>
+      <a href="about.html"    class="nav-link">About</a>
+      <a href="roadmap.html"  class="nav-link">Roadmap</a>
+    </div>
+    <div class="nav-right">
+      <div class="gas-pill" id="gasPill" title="Current Sepolia gas price">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V8l9-6 9 6v14"/><path d="M9 22V12h6v10"/></svg>
+        <span id="gasPrice">—</span> gwei
+      </div>
+      <button class="dark-mode-btn" id="darkModeBtn" onclick="toggleDarkMode()" title="Toggle theme">
+        <span id="darkModeIcon">☀️</span>
+      </button>
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="page-header">
+    <div class="hero-inner">
+      <div class="badge"><span class="badge-dot" style="background:#ec4899"></span>On-Chain · English Auction · Sepolia Testnet</div>
+      <h1 class="page-title">NFT <span class="gradient-text">Auction House</span></h1>
+      <p class="page-subtitle">
+        Bid on idkSomething NFTs in a fully decentralized English auction.<br/>
+        Smart contract holds funds — no middlemen, no hidden fees.
+      </p>
+
+      <div id="auctionNotConnected" style="margin-top:24px">
+        <button class="btn btn-primary btn-lg glow-btn" onclick="connectWallet()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/></svg>
+          Connect to Bid
+        </button>
+      </div>
+
+      <div id="auctionConnected" class="hidden" style="margin-top:16px">
+        <div class="wallet-row" style="justify-content:center">
+          <div class="wallet-pill">
+            <span class="status-dot"></span>
+            <span id="auctionWalletShort" class="mono">—</span>
+          </div>
+          <span id="auctionAdminBadge" class="hidden" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;padding:4px 10px;border-radius:999px;font-size:0.72rem;font-weight:800;letter-spacing:0.05em">⚡ ADMIN</span>
+        </div>
+        <div id="pendingRefundBanner" class="hidden" style="margin-top:12px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:12px;padding:10px 16px;font-size:0.85rem;color:#f59e0b;text-align:center">
+          You have an outbid refund to claim! &nbsp;<button class="btn btn-ghost btn-sm" onclick="showWithdrawModal()" style="border-color:rgba(245,158,11,0.5);color:#f59e0b">Claim ETH</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- How it works -->
+  <section class="section reveal">
+    <div class="section-inner">
+      <div class="features-grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">
+        <div class="feature-card tilt-card">
+          <div class="feature-icon purple"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
+          <h3>English Auction</h3>
+          <p>Open ascending-price auction. Highest bid at close wins the NFT.</p>
+        </div>
+        <div class="feature-card tilt-card">
+          <div class="feature-icon cyan"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <h3>NFT in Escrow</h3>
+          <p>The smart contract holds the NFT during bidding. Nobody can pull it out early.</p>
+        </div>
+        <div class="feature-card tilt-card">
+          <div class="feature-icon green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <h3>Auto Refunds</h3>
+          <p>Get outbid? Your ETH is claimable immediately — no waiting.</p>
+        </div>
+        <div class="feature-card tilt-card">
+          <div class="feature-icon pink"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <h3>Time-Limited</h3>
+          <p>Each auction has a countdown. Once expired, anyone can finalize the sale.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Active Auctions -->
+  <section class="section section-dark reveal">
+    <div class="section-inner">
+      <div class="activity-header">
+        <div>
+          <h2 class="section-title">Active <span class="gradient-text">Auctions</span></h2>
+          <p class="section-sub">Click an auction to place a bid.</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="loadAuctions()">↺ Refresh</button>
+      </div>
+
+      <div id="auctionLoading">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px">
+          <div class="skeleton" style="height:320px;border-radius:20px"></div>
+          <div class="skeleton" style="height:320px;border-radius:20px"></div>
+        </div>
+      </div>
+
+      <div id="auctionEmpty" class="empty-state hidden">
+        <div class="empty-icon">🔨</div>
+        <h2>No active auctions</h2>
+        <p id="auctionEmptyMsg">No NFTs on the block right now. Check back soon!</p>
+      </div>
+
+      <div id="activeAuctionGrid" class="auction-grid"></div>
+    </div>
+  </section>
+
+  <!-- Settled Auctions -->
+  <section class="section reveal">
+    <div class="section-inner">
+      <h2 class="section-title">Sold <span class="gradient-text">History</span></h2>
+      <p class="section-sub">Completed auctions, permanently on-chain.</p>
+      <div id="settledAuctionList" class="settled-list">
+        <div class="activity-empty">No settled auctions yet.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Admin Panel -->
+  <section class="section section-dark reveal" id="auctionAdminPanel" style="display:none">
+    <div class="section-inner narrow">
+      <div class="admin-form">
+        <h3 class="admin-form-title">⚡ Admin Panel — Create Auction</h3>
+        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:16px">
+          Before creating: call <code style="color:var(--purple-light)">approve(auctionContractAddr, tokenId)</code>
+          on the NFT contract in Etherscan/Remix. Then fill out the form below.
+        </p>
+
+        <label class="admin-label">Token ID (1 – 5)</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+          <button class="filter-btn" onclick="setAuctionToken(1,this)">NFT #1</button>
+          <button class="filter-btn" onclick="setAuctionToken(2,this)">NFT #2</button>
+          <button class="filter-btn" onclick="setAuctionToken(3,this)">NFT #3</button>
+          <button class="filter-btn" onclick="setAuctionToken(4,this)">NFT #4</button>
+          <button class="filter-btn" onclick="setAuctionToken(5,this)">NFT #5</button>
+        </div>
+        <input type="hidden" id="auctionTokenId" value=""/>
+
+        <label class="admin-label">Duration</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+          <button class="filter-btn" onclick="setAuctionDuration(300,this)">5 Min (demo)</button>
+          <button class="filter-btn" onclick="setAuctionDuration(3600,this)">1 Hour</button>
+          <button class="filter-btn active" onclick="setAuctionDuration(86400,this)">24 Hours</button>
+          <button class="filter-btn" onclick="setAuctionDuration(259200,this)">3 Days</button>
+        </div>
+        <input type="hidden" id="auctionDuration" value="86400"/>
+
+        <button class="btn btn-primary glow-btn" style="width:100%" id="createAuctionBtn" onclick="createAuction()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          Create Auction
+        </button>
+      </div>
+
+      <!-- End auction -->
+      <div class="admin-form" style="margin-top:16px">
+        <h3 class="admin-form-title">Force-End an Auction</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select id="endAuctionSelect" class="ownership-input" style="flex:1;min-width:160px;padding:10px 14px">
+            <option value="">Select auction…</option>
+          </select>
+          <button class="btn btn-ghost" onclick="endAuctionAdmin()" style="border-color:rgba(239,68,68,0.4);color:#ef4444">End Now</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bid Modal -->
+  <div class="modal-overlay hidden" id="bidModal" onclick="closeBidModal(event)">
+    <div class="nft-modal" style="max-width:480px">
+      <button class="modal-close" onclick="closeBidModal()">✕</button>
+      <div style="padding:32px">
+        <div class="badge" style="margin-bottom:12px"><span class="badge-dot" style="background:#ec4899"></span>Place a Bid</div>
+        <h2 id="bidModalTitle" style="font-size:1.3rem;font-weight:800;margin-bottom:20px"></h2>
+
+        <div class="bid-info-grid">
+          <div class="bid-info-cell"><span class="bid-info-label">Current Bid</span><strong id="bidCurrentBid" class="bid-info-value">—</strong></div>
+          <div class="bid-info-cell"><span class="bid-info-label">Bidder</span><strong id="bidCurrentBidder" class="bid-info-value mono" style="font-size:0.8rem">—</strong></div>
+          <div class="bid-info-cell"><span class="bid-info-label">Time Left</span><strong id="bidTimeLeft" class="bid-info-value" style="color:#f59e0b">—</strong></div>
+          <div class="bid-info-cell"><span class="bid-info-label">Min. Next Bid</span><strong id="bidMinNext" class="bid-info-value" style="color:#10b981">—</strong></div>
+        </div>
+
+        <div style="margin-top:20px">
+          <label class="admin-label">Your Bid (ETH)</label>
+          <input class="ownership-input" id="bidAmount" type="number" step="0.001" min="0" placeholder="0.001" style="width:100%;margin-bottom:6px"/>
+          <p style="font-size:0.72rem;color:var(--text-muted)">Must exceed current highest bid. Outbid funds are claimable immediately.</p>
+        </div>
+
+        <button class="btn btn-primary glow-btn" id="placeBidBtn" onclick="placeBid()" style="width:100%;margin-top:16px">
+          Place Bid →
+        </button>
+        <p id="bidErrorMsg" class="hidden" style="font-size:0.8rem;color:#ef4444;margin-top:8px;text-align:center"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Withdraw Modal -->
+  <div class="modal-overlay hidden" id="withdrawModal" onclick="closeWithdrawModal(event)">
+    <div class="nft-modal" style="max-width:400px">
+      <button class="modal-close" onclick="closeWithdrawModal()">✕</button>
+      <div style="padding:32px">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:8px">Claim Your ETH Refund</h2>
+        <p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:20px">You were outbid. Your funds are locked in the contract, ready to withdraw.</p>
+        <div id="withdrawList" class="withdraw-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bid receipt modal -->
+  <div class="modal-overlay hidden" id="bidReceiptModal" onclick="closeBidReceipt(event)">
+    <div class="receipt-modal">
+      <button class="modal-close" onclick="closeBidReceipt()">✕</button>
+      <div class="receipt-header">
+        <div class="receipt-icon">🔨</div>
+        <h2>Bid Placed!</h2>
+        <p>You're the highest bidder. Don't get outbid!</p>
+      </div>
+      <div class="receipt-body" id="bidReceiptBody"></div>
+      <div class="receipt-actions">
+        <a id="bidEtherscan" href="#" target="_blank" class="btn btn-primary btn-sm">View on Etherscan ↗</a>
+        <button class="btn btn-ghost btn-sm" onclick="closeBidReceipt()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+  <script src="config.js"></script>
+  <script src="particles.js"></script>
+  <script src="script.js"></script>
+  <script src="auction.js"></script>
+</body>
+</html>
