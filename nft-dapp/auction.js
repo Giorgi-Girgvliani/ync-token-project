@@ -101,7 +101,10 @@ async function loadAuctions() {
   } catch(e) {
     document.getElementById("auctionLoading").style.display = "none";
     document.getElementById("auctionEmpty")?.classList.remove("hidden");
-    document.getElementById("auctionEmptyMsg").textContent = "Error: " + e.message;
+    const isCallEx = e.code === "CALL_EXCEPTION" || e.message?.includes("CALL_EXCEPTION");
+    document.getElementById("auctionEmptyMsg").textContent = isCallEx
+      ? "Contract not found on Sepolia. Redeploy Auction.sol using Injected Provider in Remix (not Remix VM)."
+      : "Error: " + e.message;
   }
 }
 
@@ -306,7 +309,7 @@ let _auctionDuration = 86400;
 
 function setAuctionToken(id, btn) {
   _auctionTokenId = id;
-  document.querySelectorAll("#auctionAdminPanel .filter-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("tokenBtnGroup")?.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
   document.getElementById("auctionTokenId").value = id;
 }
@@ -314,8 +317,7 @@ function setAuctionToken(id, btn) {
 function setAuctionDuration(secs, btn) {
   _auctionDuration = secs;
   document.getElementById("auctionDuration").value = secs;
-  const parent = btn.closest(".admin-form");
-  parent?.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("durationBtnGroup")?.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
 }
 

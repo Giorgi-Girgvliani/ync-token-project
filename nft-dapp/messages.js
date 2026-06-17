@@ -104,7 +104,16 @@ async function loadMessages() {
     await renderMessages(con, 0);
   } catch(e) {
     document.getElementById("boardLoading").style.display = "none";
-    document.getElementById("boardList").innerHTML = `<div class="activity-empty">Error loading: ${e.message}</div>`;
+    const isCallEx = e.code === "CALL_EXCEPTION" || e.message?.includes("CALL_EXCEPTION");
+    document.getElementById("boardList").innerHTML = `
+      <div class="activity-empty">
+        ${isCallEx
+          ? `Contract not found on Sepolia. Make sure you deployed on <strong>Injected Provider</strong> (not Remix VM).<br/>
+             <a href="https://sepolia.etherscan.io/address/${CONFIG.BOARD_CONTRACT}" target="_blank"
+               style="color:var(--purple-light)">Check on Etherscan ↗</a>`
+          : `Error loading: ${e.message}`
+        }
+      </div>`;
   }
 }
 
@@ -199,7 +208,7 @@ function updateCharCount() {
   if (postBtn) postBtn.disabled = len === 0 || !boardUserAddr;
 }
 
-async function postMessage() {
+async function publishBoardMessage() {
   const ta = document.getElementById("msgContent");
   const content = ta?.value.trim();
   if (!content)        { showToast("Write something first.", "error"); return; }

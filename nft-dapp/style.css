@@ -990,6 +990,11 @@ select.ownership-input option {
   font-family: inherit;
   padding: 8px;
 }
+select.ownership-input option:checked,
+select.ownership-input option:focus {
+  background: #3b1f6e;
+  color: #f8fafc;
+}
 .ownership-result {
   margin-top: 20px; background: var(--card-bg); border: 1px solid var(--card-border);
   border-radius: var(--r); padding: 20px;

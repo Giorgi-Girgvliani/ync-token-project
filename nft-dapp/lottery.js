@@ -68,7 +68,10 @@ async function initLotteryPage() {
     window.ethereum.on("accountsChanged", () => location.reload());
     window.ethereum.on("chainChanged",    () => location.reload());
   } catch(e) {
-    showToast("Connect failed: " + (e.message || e), "error");
+    const isCallEx = e.code === "CALL_EXCEPTION" || e.message?.includes("CALL_EXCEPTION");
+    showToast(isCallEx
+      ? "Contract not found on Sepolia — was Remix VM used instead of Injected Provider?"
+      : "Connect failed: " + (e.message || e), "error");
   }
 }
 
@@ -87,7 +90,10 @@ async function loadCurrentRoundReadOnly() {
     await loadPastRoundsFromContract(con, count);
   } catch(e) {
     document.getElementById("lotteryLoading").style.display = "none";
-    showNoRound("Error loading round: " + e.message);
+    const isCallEx = e.code === "CALL_EXCEPTION" || e.message?.includes("CALL_EXCEPTION");
+    showNoRound(isCallEx
+      ? "Contract not found on Sepolia. Redeploy Lottery.sol using Injected Provider in Remix (not Remix VM)."
+      : "Error: " + e.message);
   }
 }
 

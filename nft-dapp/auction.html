@@ -165,7 +165,7 @@
         </p>
 
         <label class="admin-label">Token ID (1 – 5)</label>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <div id="tokenBtnGroup" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
           <button class="filter-btn" onclick="setAuctionToken(1,this)">NFT #1</button>
           <button class="filter-btn" onclick="setAuctionToken(2,this)">NFT #2</button>
           <button class="filter-btn" onclick="setAuctionToken(3,this)">NFT #3</button>
@@ -175,7 +175,7 @@
         <input type="hidden" id="auctionTokenId" value=""/>
 
         <label class="admin-label">Duration</label>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+        <div id="durationBtnGroup" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
           <button class="filter-btn" onclick="setAuctionDuration(300,this)">5 Min (demo)</button>
           <button class="filter-btn" onclick="setAuctionDuration(3600,this)">1 Hour</button>
           <button class="filter-btn active" onclick="setAuctionDuration(86400,this)">24 Hours</button>
