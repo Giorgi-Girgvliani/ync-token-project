@@ -57,69 +57,74 @@
     </div>
   </nav>
 
-  <div id="profilePage">
+  <div id="profilePage" class="profile-page">
+
     <!-- Not connected -->
-    <header class="page-header" id="profileNotConnected">
-      <div class="hero-inner">
-        <div class="badge"><span class="badge-dot"></span>Your Web3 Identity</div>
-        <h1 class="page-title">Your <span class="gradient-text">Profile</span></h1>
-        <p class="page-subtitle">Connect once — stay signed in across every page on this site.</p>
-        <button class="btn btn-primary btn-lg glow-btn" style="margin-top:24px" onclick="connectWallet()">
-          Connect Wallet
-        </button>
+    <section class="profile-guest" id="profileNotConnected">
+      <div class="profile-guest-card">
+        <div class="profile-guest-icon">👤</div>
+        <h1 class="profile-guest-title">Your <span class="gradient-text">Profile</span></h1>
+        <p class="profile-guest-sub">Connect your wallet once — stay signed in across every page on this site.</p>
+        <button class="btn btn-primary btn-lg glow-btn" onclick="connectWallet()">Connect Wallet</button>
+        <p class="profile-guest-hint">MetaMask · Sepolia Testnet</p>
       </div>
-    </header>
+    </section>
 
     <!-- Connected profile -->
     <div id="profileConnected" class="hidden">
-      <header class="page-header profile-hero">
-        <div class="hero-inner profile-hero-inner">
-          <div class="profile-avatar-wrap">
-            <div class="profile-avatar" id="profileAvatar">🦊</div>
-            <div class="profile-avatar-ring"></div>
-          </div>
-          <div class="profile-hero-text">
-            <h1 class="page-title" id="profileDisplayName">—</h1>
-            <p class="profile-address mono" id="profileAddress">—</p>
-            <p class="profile-ens hidden" id="profileEns"></p>
-            <div class="profile-badges">
-              <span class="profile-badge">Sepolia</span>
-              <span class="profile-badge" id="profileSessionBadge">Session saved</span>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <section class="section reveal">
+      <section class="profile-top">
         <div class="section-inner">
-          <div class="profile-stats-grid">
-            <div class="profile-stat-card">
-              <span class="profile-stat-label">ETH Balance</span>
-              <strong class="profile-stat-value" id="profileEth">—</strong>
+          <div class="profile-card">
+            <div class="profile-card-main">
+              <div class="profile-avatar-wrap">
+                <div class="profile-avatar" id="profileAvatar">🦊</div>
+              </div>
+              <div class="profile-card-info">
+                <p class="profile-kicker">Connected wallet</p>
+                <h1 class="profile-name" id="profileDisplayName">—</h1>
+                <p class="profile-ens hidden" id="profileEns"></p>
+                <p class="profile-address mono" id="profileAddress">—</p>
+                <p class="profile-bio hidden" id="profileBioDisplay"></p>
+                <div class="profile-badges">
+                  <span class="profile-badge">Sepolia</span>
+                  <span class="profile-badge profile-badge-green" id="profileSessionBadge">Session active</span>
+                </div>
+              </div>
+              <div class="profile-card-actions">
+                <a id="profileEtherscanTop" href="#" target="_blank" class="btn btn-ghost btn-sm">Etherscan ↗</a>
+                <button type="button" class="btn btn-ghost btn-sm profile-disconnect-btn" onclick="disconnectWallet()">Disconnect</button>
+              </div>
             </div>
-            <div class="profile-stat-card">
-              <span class="profile-stat-label">YNC Balance</span>
-              <strong class="profile-stat-value" id="profileYnc">—</strong>
-            </div>
-            <div class="profile-stat-card">
-              <span class="profile-stat-label">NFTs Owned</span>
-              <strong class="profile-stat-value" id="profileNfts">—</strong>
-            </div>
-            <div class="profile-stat-card">
-              <span class="profile-stat-label">Member Since</span>
-              <strong class="profile-stat-value profile-stat-sm" id="profileSince">—</strong>
+
+            <div class="profile-stats-grid">
+              <div class="profile-stat-card">
+                <span class="profile-stat-label">ETH</span>
+                <strong class="profile-stat-value" id="profileEth">—</strong>
+              </div>
+              <div class="profile-stat-card">
+                <span class="profile-stat-label">YNC</span>
+                <strong class="profile-stat-value" id="profileYnc">—</strong>
+              </div>
+              <div class="profile-stat-card">
+                <span class="profile-stat-label">NFTs</span>
+                <strong class="profile-stat-value" id="profileNfts">—</strong>
+              </div>
+              <div class="profile-stat-card">
+                <span class="profile-stat-label">Member since</span>
+                <strong class="profile-stat-value profile-stat-sm" id="profileSince">—</strong>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="section section-dark reveal">
+      <section class="section section-dark">
         <div class="section-inner narrow">
           <h2 class="section-title">Edit <span class="gradient-text">Profile</span></h2>
-          <p class="section-sub">Saved locally in your browser — tied to your wallet address. Not on-chain.</p>
+          <p class="section-sub">Saved locally in your browser — tied to your wallet. Not on-chain.</p>
 
           <div class="profile-form">
-            <label class="admin-label">Avatar Emoji</label>
+            <label class="admin-label">Avatar emoji</label>
             <div class="emoji-picker" id="emojiPicker">
               <button type="button" class="emoji-btn" onclick="pickEmoji('🦊', this)">🦊</button>
               <button type="button" class="emoji-btn" onclick="pickEmoji('🐸', this)">🐸</button>
@@ -131,7 +136,7 @@
               <button type="button" class="emoji-btn" onclick="pickEmoji('⚡', this)">⚡</button>
             </div>
 
-            <label class="admin-label">Display Name</label>
+            <label class="admin-label">Display name</label>
             <input class="ownership-input" id="profileNameInput" type="text" maxlength="32"
               placeholder="e.g. Giorgi" style="width:100%;margin-bottom:12px"/>
 
@@ -144,15 +149,12 @@
             <input class="ownership-input" id="profileLinkInput" type="url"
               placeholder="https://…" style="width:100%;margin-bottom:20px"/>
 
-            <div style="display:flex;gap:10px;flex-wrap:wrap">
-              <button class="btn btn-primary glow-btn" onclick="saveUserProfile()">Save Profile</button>
-              <button class="btn btn-ghost" onclick="disconnectWallet()">Disconnect</button>
-            </div>
+            <button type="button" class="btn btn-primary glow-btn" onclick="saveUserProfile()">Save Profile</button>
           </div>
         </div>
       </section>
 
-      <section class="section reveal">
+      <section class="section">
         <div class="section-inner narrow">
           <h2 class="section-title">Quick <span class="gradient-text">Links</span></h2>
           <div class="profile-links-grid">

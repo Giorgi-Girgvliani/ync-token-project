@@ -57,6 +57,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   updateGlobalNavWallet?.();
 
+  if (isManualDisconnect?.()) {
+    resetWalletState();
+    updateGlobalNavWallet?.();
+    renderDisconnectedPages();
+    return;
+  }
+
   // Auto-reconnect silently if MetaMask already authorized this site
   const silentAddr = await trySilentConnect?.();
   if (silentAddr || window.ethereum?.selectedAddress) {
@@ -85,12 +92,16 @@ async function connectWallet(silent = false) {
     return false;
   }
 
+  if (isManualDisconnect?.() && silent) return false;
+
   try {
     let accounts;
     if (silent) {
+      if (isManualDisconnect?.()) return false;
       accounts = await window.ethereum.request({ method: "eth_accounts" });
       if (!accounts?.[0]) return false;
     } else {
+      setManualDisconnect?.(false);
       accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     }
     userAddress = accounts[0];
@@ -138,6 +149,41 @@ async function connectWallet(silent = false) {
     }
     return false;
   }
+}
+
+function resetWalletState() {
+  userAddress = null;
+  provider = null;
+  signer = null;
+  nftContract = null;
+  yncContract = null;
+}
+
+function renderDisconnectedPages() {
+  document.getElementById("notConnected")?.classList.remove("hidden");
+  document.getElementById("mintPanel")?.classList.add("hidden");
+
+  document.getElementById("galleryNotConnected")?.classList.remove("hidden");
+  document.getElementById("galleryGrid")?.classList.add("hidden");
+  document.getElementById("galleryEmpty")?.classList.add("hidden");
+  document.getElementById("galleryStats")?.classList.add("hidden");
+
+  document.getElementById("voteNotConnected")?.classList.remove("hidden");
+  document.getElementById("voteConnected")?.classList.add("hidden");
+
+  document.getElementById("boardNotConnected")?.classList.remove("hidden");
+  document.getElementById("boardConnected")?.classList.add("hidden");
+  const postBtn = document.getElementById("postBtn");
+  if (postBtn) postBtn.disabled = true;
+
+  document.getElementById("lotteryNotConnected")?.classList.remove("hidden");
+  document.getElementById("lotteryConnected")?.classList.add("hidden");
+
+  document.getElementById("auctionNotConnected")?.classList.remove("hidden");
+  document.getElementById("auctionConnected")?.classList.add("hidden");
+
+  document.getElementById("profileNotConnected")?.classList.remove("hidden");
+  document.getElementById("profileConnected")?.classList.add("hidden");
 }
 
 async function ensureSepolia() {

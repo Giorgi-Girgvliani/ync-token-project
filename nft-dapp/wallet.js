@@ -1,13 +1,24 @@
 /* ─── Wallet session + local profile (localStorage) ─────────────────────── */
 const SESSION_KEY = "yncnft_wallet_session";
 const PROFILE_KEY = "yncnft_profiles";
+const DISCONNECT_KEY = "yncnft_manual_disconnect";
 
 function defaultProfile() {
   return { displayName: "", bio: "", link: "", emoji: "🦊" };
 }
 
+function setManualDisconnect(disconnected) {
+  if (disconnected) localStorage.setItem(DISCONNECT_KEY, "1");
+  else localStorage.removeItem(DISCONNECT_KEY);
+}
+
+function isManualDisconnect() {
+  return localStorage.getItem(DISCONNECT_KEY) === "1";
+}
+
 function saveWalletSession(address) {
   if (!address) return;
+  setManualDisconnect(false);
   localStorage.setItem(SESSION_KEY, JSON.stringify({
     address: address.toLowerCase(),
     ts: Date.now(),
@@ -76,35 +87,49 @@ function updateGlobalNavWallet() {
   const walletLabel = document.getElementById("navWalletLabel");
   const walletEmoji = document.getElementById("navWalletEmoji");
 
-  const connected = typeof userAddress !== "undefined" && userAddress;
+  const connected = typeof userAddress !== "undefined" && userAddress && !isManualDisconnect();
 
   if (connectBtn) connectBtn.classList.toggle("hidden", !!connected);
   if (walletPill) walletPill.classList.toggle("hidden", !connected);
 
   if (connected && walletLabel) {
     walletLabel.textContent = getDisplayName(userAddress);
-    resolveENS(userAddress).then(ens => {
-      if (ens && walletLabel) walletLabel.textContent = getDisplayName(userAddress, ens);
-    });
+    if (typeof resolveENS === "function") {
+      resolveENS(userAddress).then(ens => {
+        if (ens && walletLabel) walletLabel.textContent = getDisplayName(userAddress, ens);
+      });
+    }
   }
 
   if (connected && walletEmoji) {
     walletEmoji.textContent = getProfileEmoji(userAddress);
   }
 
-  // Legacy per-page wallet short labels
-  document.querySelectorAll("#walletShort, #voteWalletShort, #boardWalletShort, #lotteryWalletShort, #auctionWalletShort").forEach(el => {
-    if (!connected) return;
-    el.textContent = getDisplayName(userAddress);
-    resolveENS(userAddress).then(ens => {
-      if (ens) el.textContent = getDisplayName(userAddress, ens);
+  if (!connected) {
+    document.querySelectorAll("#walletShort, #voteWalletShort, #boardWalletShort, #lotteryWalletShort, #auctionWalletShort").forEach(el => {
+      el.textContent = "—";
     });
+    return;
+  }
+
+  document.querySelectorAll("#walletShort, #voteWalletShort, #boardWalletShort, #lotteryWalletShort, #auctionWalletShort").forEach(el => {
+    el.textContent = getDisplayName(userAddress);
+    if (typeof resolveENS === "function") {
+      resolveENS(userAddress).then(ens => {
+        if (ens) el.textContent = getDisplayName(userAddress, ens);
+      });
+    }
   });
 }
 
 function disconnectWallet() {
+  setManualDisconnect(true);
   clearWalletSession();
-  showToast?.("Wallet disconnected on this site.");
+
+  if (typeof resetWalletState === "function") resetWalletState();
+
+  updateGlobalNavWallet();
+  showToast?.("Disconnected. Click Connect to sign in again.");
   window.dispatchEvent(new CustomEvent("wallet:disconnected"));
-  location.reload();
+  renderDisconnectedPages?.();
 }
