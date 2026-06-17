@@ -38,10 +38,18 @@
       <a href="messages.html" class="nav-link">Board</a>
       <a href="lottery.html"  class="nav-link">Lottery</a>
       <a href="auction.html"  class="nav-link active">Auction</a>
+      <a href="profile.html"  class="nav-link">Profile</a>
       <a href="about.html"    class="nav-link">About</a>
       <a href="roadmap.html"  class="nav-link">Roadmap</a>
     </div>
     <div class="nav-right">
+      <div class="nav-wallet-wrap" id="navWalletWrap">
+        <button class="nav-connect-btn" id="navConnectBtn" onclick="connectWallet()">Connect</button>
+        <a href="profile.html" class="nav-wallet-pill hidden" id="navWalletPill" title="Open profile">
+          <span class="nav-wallet-emoji" id="navWalletEmoji">🦊</span>
+          <span id="navWalletLabel" class="mono">—</span>
+        </a>
+      </div>
       <div class="gas-pill" id="gasPill" title="Current Sepolia gas price">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V8l9-6 9 6v14"/><path d="M9 22V12h6v10"/></svg>
         <span id="gasPrice">—</span> gwei
@@ -264,6 +272,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
   <script src="config.js"></script>
+  <script src="wallet.js"></script>
   <script src="particles.js"></script>
   <script src="script.js"></script>
   <script src="auction.js"></script>

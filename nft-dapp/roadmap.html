@@ -36,10 +36,18 @@
       <a href="messages.html" class="nav-link">Board</a>
       <a href="lottery.html"  class="nav-link">Lottery</a>
       <a href="auction.html"  class="nav-link">Auction</a>
+      <a href="profile.html"  class="nav-link">Profile</a>
       <a href="about.html"    class="nav-link">About</a>
       <a href="roadmap.html"  class="nav-link active">Roadmap</a>
     </div>
     <div class="nav-right">
+      <div class="nav-wallet-wrap" id="navWalletWrap">
+        <button class="nav-connect-btn" id="navConnectBtn" onclick="connectWallet()">Connect</button>
+        <a href="profile.html" class="nav-wallet-pill hidden" id="navWalletPill" title="Open profile">
+          <span class="nav-wallet-emoji" id="navWalletEmoji">🦊</span>
+          <span id="navWalletLabel" class="mono">—</span>
+        </a>
+      </div>
       <button class="dark-mode-btn" id="darkModeBtn" onclick="toggleDarkMode()" title="Toggle theme">
         <span id="darkModeIcon">☀️</span>
       </button>
@@ -237,6 +245,7 @@
   <div id="toast" class="toast hidden"></div>
 
   <script src="config.js"></script>
+  <script src="wallet.js"></script>
   <script src="particles.js"></script>
   <script src="script.js"></script>
 </body>

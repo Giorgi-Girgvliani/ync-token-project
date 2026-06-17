@@ -1559,6 +1559,96 @@ textarea.ownership-input { font-family: inherit; line-height: 1.6; }
 .withdraw-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--r-sm); padding: 12px 14px; }
 
 /* =============================================
+   NAV WALLET SESSION
+   ============================================= */
+.nav-wallet-wrap { display: flex; align-items: center; gap: 8px; }
+.nav-connect-btn {
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  color: #fff; border: none; border-radius: 999px;
+  padding: 7px 14px; font-size: 0.78rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; white-space: nowrap;
+  transition: opacity 0.2s, transform 0.15s;
+}
+.nav-connect-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.nav-wallet-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--card-bg); border: 1px solid rgba(124,58,237,0.35);
+  border-radius: 999px; padding: 5px 12px 5px 6px;
+  text-decoration: none; color: var(--text-main);
+  transition: border-color 0.2s, background 0.2s;
+  max-width: 160px;
+}
+.nav-wallet-pill:hover { border-color: rgba(124,58,237,0.6); background: rgba(124,58,237,0.08); }
+.nav-wallet-emoji { font-size: 1rem; line-height: 1; }
+#navWalletLabel { font-size: 0.75rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* =============================================
+   PROFILE PAGE
+   ============================================= */
+.profile-hero { padding-bottom: 32px; }
+.profile-hero-inner {
+  display: flex; align-items: center; gap: 24px;
+  flex-wrap: wrap; justify-content: center; text-align: left;
+}
+.profile-avatar-wrap { position: relative; flex-shrink: 0; }
+.profile-avatar {
+  width: 88px; height: 88px; border-radius: 50%;
+  background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(236,72,153,0.3));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.4rem; position: relative; z-index: 1;
+}
+.profile-avatar-ring {
+  position: absolute; inset: -4px; border-radius: 50%;
+  border: 2px solid rgba(124,58,237,0.4);
+  animation: pulse-ring 2.5s ease infinite;
+}
+@keyframes pulse-ring {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+.profile-hero-text { flex: 1; min-width: 200px; }
+.profile-address { font-size: 0.82rem; color: var(--text-muted); word-break: break-all; margin-top: 6px; }
+.profile-ens { font-size: 0.85rem; color: var(--purple-light); margin-top: 4px; }
+.profile-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.profile-badge {
+  background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.25);
+  color: var(--purple-light); padding: 3px 10px; border-radius: 999px;
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+}
+.profile-stats-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px;
+}
+.profile-stat-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--r-sm); padding: 16px;
+}
+.profile-stat-label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 6px; }
+.profile-stat-value { font-size: 1.4rem; font-weight: 900; line-height: 1.1; }
+.profile-stat-sm { font-size: 0.95rem; }
+.profile-form {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--r); padding: 24px;
+}
+.emoji-picker { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.emoji-btn {
+  width: 42px; height: 42px; border-radius: 12px;
+  background: rgba(255,255,255,0.04); border: 2px solid var(--card-border);
+  font-size: 1.3rem; cursor: pointer; transition: all 0.15s;
+}
+.emoji-btn:hover { border-color: rgba(124,58,237,0.4); }
+.emoji-btn.active { border-color: var(--purple); background: rgba(124,58,237,0.15); }
+.profile-links-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;
+}
+.profile-link-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--r-sm); padding: 14px 16px; text-decoration: none;
+  color: var(--text-main); font-weight: 600; font-size: 0.88rem;
+  transition: border-color 0.2s, transform 0.15s;
+}
+.profile-link-card:hover { border-color: rgba(124,58,237,0.4); transform: translateY(-2px); }
+
+/* =============================================
    RESPONSIVE (updated)
    ============================================= */
 @media (max-width: 900px) {
@@ -1576,6 +1666,9 @@ textarea.ownership-input { font-family: inherit; line-height: 1.6; }
   .lottery-stats-row { gap: 12px; }
   .lottery-prize-amount { font-size: 1.5rem; }
   .auction-grid { grid-template-columns: 1fr; }
+  .nav-connect-btn { padding: 6px 10px; font-size: 0.72rem; }
+  .nav-wallet-pill { max-width: 120px; }
+  .profile-hero-inner { text-align: center; }
 }
 @media (max-width: 480px) {
   .stat-counter { width: 100%; border-bottom: 1px solid var(--card-border); align-items: center; }

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile — idkSomething</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#7c3aed"/>
+  <meta name="description" content="Your idkSomething dApp profile — wallet session, balances, and editable display info."/>
+</head>
+<body>
+
+  <canvas id="particleCanvas" class="particle-canvas" aria-hidden="true"></canvas>
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb1" style="background:#7c3aed"></div>
+    <div class="orb orb2" style="background:#ec4899"></div>
+    <div class="orb orb3" style="background:#06b6d4"></div>
+  </div>
+  <div class="grid-overlay" aria-hidden="true"></div>
+  <div class="grain-overlay" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo"><span class="logo-dot"></span>YNCNFT</a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html"    class="nav-link">Mint</a>
+      <a href="gallery.html"  class="nav-link">My NFTs</a>
+      <a href="voting.html"   class="nav-link">Vote</a>
+      <a href="messages.html" class="nav-link">Board</a>
+      <a href="lottery.html"  class="nav-link">Lottery</a>
+      <a href="auction.html"  class="nav-link">Auction</a>
+      <a href="profile.html"  class="nav-link active">Profile</a>
+      <a href="about.html"    class="nav-link">About</a>
+      <a href="roadmap.html"  class="nav-link">Roadmap</a>
+    </div>
+    <div class="nav-right">
+      <div class="nav-wallet-wrap" id="navWalletWrap">
+        <button class="nav-connect-btn" id="navConnectBtn" onclick="connectWallet()">Connect</button>
+        <a href="profile.html" class="nav-wallet-pill hidden" id="navWalletPill" title="Open profile">
+          <span class="nav-wallet-emoji" id="navWalletEmoji">🦊</span>
+          <span id="navWalletLabel" class="mono">—</span>
+        </a>
+      </div>
+      <div class="gas-pill" id="gasPill" title="Current Sepolia gas price">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V8l9-6 9 6v14"/><path d="M9 22V12h6v10"/></svg>
+        <span id="gasPrice">—</span> gwei
+      </div>
+      <button class="dark-mode-btn" id="darkModeBtn" onclick="toggleDarkMode()" title="Toggle theme">
+        <span id="darkModeIcon">☀️</span>
+      </button>
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div id="profilePage">
+    <!-- Not connected -->
+    <header class="page-header" id="profileNotConnected">
+      <div class="hero-inner">
+        <div class="badge"><span class="badge-dot"></span>Your Web3 Identity</div>
+        <h1 class="page-title">Your <span class="gradient-text">Profile</span></h1>
+        <p class="page-subtitle">Connect once — stay signed in across every page on this site.</p>
+        <button class="btn btn-primary btn-lg glow-btn" style="margin-top:24px" onclick="connectWallet()">
+          Connect Wallet
+        </button>
+      </div>
+    </header>
+
+    <!-- Connected profile -->
+    <div id="profileConnected" class="hidden">
+      <header class="page-header profile-hero">
+        <div class="hero-inner profile-hero-inner">
+          <div class="profile-avatar-wrap">
+            <div class="profile-avatar" id="profileAvatar">🦊</div>
+            <div class="profile-avatar-ring"></div>
+          </div>
+          <div class="profile-hero-text">
+            <h1 class="page-title" id="profileDisplayName">—</h1>
+            <p class="profile-address mono" id="profileAddress">—</p>
+            <p class="profile-ens hidden" id="profileEns"></p>
+            <div class="profile-badges">
+              <span class="profile-badge">Sepolia</span>
+              <span class="profile-badge" id="profileSessionBadge">Session saved</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="section reveal">
+        <div class="section-inner">
+          <div class="profile-stats-grid">
+            <div class="profile-stat-card">
+              <span class="profile-stat-label">ETH Balance</span>
+              <strong class="profile-stat-value" id="profileEth">—</strong>
+            </div>
+            <div class="profile-stat-card">
+              <span class="profile-stat-label">YNC Balance</span>
+              <strong class="profile-stat-value" id="profileYnc">—</strong>
+            </div>
+            <div class="profile-stat-card">
+              <span class="profile-stat-label">NFTs Owned</span>
+              <strong class="profile-stat-value" id="profileNfts">—</strong>
+            </div>
+            <div class="profile-stat-card">
+              <span class="profile-stat-label">Member Since</span>
+              <strong class="profile-stat-value profile-stat-sm" id="profileSince">—</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-dark reveal">
+        <div class="section-inner narrow">
+          <h2 class="section-title">Edit <span class="gradient-text">Profile</span></h2>
+          <p class="section-sub">Saved locally in your browser — tied to your wallet address. Not on-chain.</p>
+
+          <div class="profile-form">
+            <label class="admin-label">Avatar Emoji</label>
+            <div class="emoji-picker" id="emojiPicker">
+              <button type="button" class="emoji-btn" onclick="pickEmoji('🦊', this)">🦊</button>
+              <button type="button" class="emoji-btn" onclick="pickEmoji('🐸', this)">🐸</button>
+              <button type="button" class="emoji-btn" onclick="pickEmoji('🚀', this)">🚀</button>
+              <button type="button" class="emoji-btn" onclick="pickEmoji('💎', this)">💎</button>
+              <button type="button" class="emoji-btn" onclick="pickEmoji('🔥', this)">🔥</button>
+              <button type="button" class="emoji-btn" onclick="pickEmoji('👾', this)">👾</button>
+              <button type="button" class="emoji-btn" onclick="pickEmoji('🎨', this)">🎨</button>
+              <button type="button" class="emoji-btn" onclick="pickEmoji('⚡', this)">⚡</button>
+            </div>
+
+            <label class="admin-label">Display Name</label>
+            <input class="ownership-input" id="profileNameInput" type="text" maxlength="32"
+              placeholder="e.g. Giorgi" style="width:100%;margin-bottom:12px"/>
+
+            <label class="admin-label">Bio</label>
+            <textarea class="ownership-input" id="profileBioInput" rows="3" maxlength="160"
+              placeholder="Tell the blockchain something about you…"
+              style="width:100%;resize:vertical;margin-bottom:12px"></textarea>
+
+            <label class="admin-label">Link <small style="color:var(--text-muted)">(Twitter, GitHub, etc.)</small></label>
+            <input class="ownership-input" id="profileLinkInput" type="url"
+              placeholder="https://…" style="width:100%;margin-bottom:20px"/>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn btn-primary glow-btn" onclick="saveUserProfile()">Save Profile</button>
+              <button class="btn btn-ghost" onclick="disconnectWallet()">Disconnect</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section reveal">
+        <div class="section-inner narrow">
+          <h2 class="section-title">Quick <span class="gradient-text">Links</span></h2>
+          <div class="profile-links-grid">
+            <a href="gallery.html" class="profile-link-card">🖼 My NFTs</a>
+            <a href="voting.html" class="profile-link-card">🗳 Vote</a>
+            <a href="messages.html" class="profile-link-card">💬 Board</a>
+            <a href="lottery.html" class="profile-link-card">🎰 Lottery</a>
+            <a href="auction.html" class="profile-link-card">🔨 Auction</a>
+            <a id="profileEtherscan" href="#" target="_blank" class="profile-link-card">↗ Etherscan</a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+  <script src="config.js"></script>
+  <script src="wallet.js"></script>
+  <script src="particles.js"></script>
+  <script src="script.js"></script>
+  <script src="profile.js"></script>
+</body>
+</html>

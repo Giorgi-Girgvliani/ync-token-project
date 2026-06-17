@@ -35,34 +35,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // Auto-connect if MetaMask already has a session
-  if (window.ethereum?.selectedAddress) {
-    await initVotingPage();
-  } else {
-    await loadElectionsReadOnly();
-  }
+  await loadElectionsReadOnly();
+  if (userAddress) await initVotingPage();
 });
 
-/* ─── Connect (called from shared script.js connectWallet, or standalone) ── */
+window.addEventListener("wallet:connected", () => initVotingPage());
+
 async function initVotingPage() {
-  if (!window.ethereum) return;
+  if (!userAddress || !signer) return;
   try {
-    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-    votingUserAddr  = accounts[0];
-    votingProvider  = new ethers.providers.Web3Provider(window.ethereum);
-    votingSigner    = votingProvider.getSigner();
-    votingContract  = new ethers.Contract(CONFIG.VOTING_CONTRACT, VOTING_ABI, votingSigner);
+    votingUserAddr  = userAddress;
+    votingProvider  = provider;
+    votingSigner    = signer;
+    votingContract  = new ethers.Contract(CONFIG.VOTING_CONTRACT, VOTING_ABI, signer);
 
-    // Ensure Sepolia
-    await ensureSepolia();
-
-    // Update UI
     document.getElementById("voteNotConnected")?.classList.add("hidden");
     document.getElementById("voteConnected")?.classList.remove("hidden");
     const walletEl = document.getElementById("voteWalletShort");
-    if (walletEl) walletEl.textContent = `${votingUserAddr.slice(0,6)}…${votingUserAddr.slice(-4)}`;
+    if (walletEl) walletEl.textContent = getDisplayName?.(votingUserAddr) || `${votingUserAddr.slice(0,6)}…${votingUserAddr.slice(-4)}`;
 
-    // Check admin
     const adminAddr = await votingContract.admin();
     isVotingAdmin = adminAddr.toLowerCase() === votingUserAddr.toLowerCase();
     if (isVotingAdmin) {
@@ -72,17 +63,10 @@ async function initVotingPage() {
     }
 
     await loadElections();
-
-    // Listen for changes
-    window.ethereum.on("accountsChanged", () => location.reload());
-    window.ethereum.on("chainChanged",    () => location.reload());
   } catch (e) {
     showToast("Connect failed: " + (e.message || e), "error");
   }
 }
-
-// Override the shared connectWallet button on voting page
-async function connectWallet() { await initVotingPage(); }
 
 /* ─── Load elections (with wallet) ──────────────────────────────────────── */
 async function loadElections() {

@@ -55,8 +55,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     l.addEventListener("click", closeMobileNav);
   });
 
-  // Auto-reconnect if MetaMask already has an account selected
-  if (window.ethereum?.selectedAddress) {
+  updateGlobalNavWallet?.();
+
+  // Auto-reconnect silently if MetaMask already authorized this site
+  const silentAddr = await trySilentConnect?.();
+  if (silentAddr || window.ethereum?.selectedAddress) {
     await connectWallet(true);
   }
 });
@@ -79,11 +82,17 @@ function closeMobileNav() {
 async function connectWallet(silent = false) {
   if (!window.ethereum) {
     if (!silent) alert("MetaMask is not installed. Please install it from metamask.io.");
-    return;
+    return false;
   }
 
   try {
-    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    let accounts;
+    if (silent) {
+      accounts = await window.ethereum.request({ method: "eth_accounts" });
+      if (!accounts?.[0]) return false;
+    } else {
+      accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    }
     userAddress = accounts[0];
 
     // Ensure Sepolia
@@ -95,18 +104,24 @@ async function connectWallet(silent = false) {
 
     // Guard against missing contract address
     if (CONFIG.NFT_CONTRACT === "PASTE_YOUR_NFT_CONTRACT_ADDRESS") {
-      showToast("⚠ Paste your NFT contract address in config.js first!", "error");
+      if (!silent) showToast("⚠ Paste your NFT contract address in config.js first!", "error");
     } else {
       nftContract = new ethers.Contract(CONFIG.NFT_CONTRACT, NFT_ABI, signer);
     }
     yncContract = new ethers.Contract(CONFIG.YNC_CONTRACT, ERC20_ABI, provider);
 
-    // Update shared UI
+    saveWalletSession?.(userAddress);
     updateNavWallet();
+    updateGlobalNavWallet?.();
 
     // Page-specific logic
     if (document.getElementById("mintPanel"))   await initMintPage();
     if (document.getElementById("galleryGrid")) await initGalleryPage();
+    if (document.getElementById("profilePage")) await initProfilePage?.();
+
+    window.dispatchEvent(new CustomEvent("wallet:connected", {
+      detail: { address: userAddress, provider, signer },
+    }));
 
     // Listen for account / chain changes
     window.ethereum.removeAllListeners?.("accountsChanged");
@@ -114,11 +129,14 @@ async function connectWallet(silent = false) {
     window.ethereum.on("accountsChanged", () => location.reload());
     window.ethereum.on("chainChanged",    () => location.reload());
 
+    return true;
+
   } catch (err) {
     if (!silent) {
       if (err.code === 4001) showToast("Connection cancelled.", "error");
       else alert("Connection error: " + (err.message || err));
     }
+    return false;
   }
 }
 
@@ -155,11 +173,10 @@ async function ensureSepolia() {
 
 async function updateNavWallet() {
   const walletShort = document.getElementById("walletShort");
-  if (!walletShort) return;
-  walletShort.textContent = `${userAddress.slice(0,6)}…${userAddress.slice(-4)}`;
-  // Try ENS
+  if (!walletShort || !userAddress) return;
+  walletShort.textContent = getDisplayName?.(userAddress) || `${userAddress.slice(0,6)}…${userAddress.slice(-4)}`;
   const ens = await resolveENS(userAddress);
-  if (ens) walletShort.textContent = ens;
+  if (ens) walletShort.textContent = getDisplayName?.(userAddress, ens) || ens;
 }
 
 /* ─── Mint Page ─────────────────────────────────────────────────────────── */

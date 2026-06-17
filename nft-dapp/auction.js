@@ -37,28 +37,23 @@ document.addEventListener("DOMContentLoaded", async () => {
       "Auction contract not yet deployed. Deploy Auction.sol (with NFT contract address as constructor arg) and paste the address in config.js.";
     return;
   }
-  if (window.ethereum?.selectedAddress) {
-    await initAuctionPage();
-  } else {
-    await loadAuctionsReadOnly();
-  }
+  await loadAuctionsReadOnly();
+  if (userAddress) await initAuctionPage();
 });
 
-async function initAuctionPage() {
-  if (!window.ethereum) return;
-  try {
-    const accounts  = await window.ethereum.request({ method: "eth_requestAccounts" });
-    auctionUserAddr = accounts[0];
-    const provider  = new ethers.providers.Web3Provider(window.ethereum);
-    auctionSigner   = provider.getSigner();
-    auctionContract = new ethers.Contract(CONFIG.AUCTION_CONTRACT, AUCTION_ABI, auctionSigner);
+window.addEventListener("wallet:connected", () => initAuctionPage());
 
-    await ensureSepolia();
+async function initAuctionPage() {
+  if (!userAddress || !signer) return;
+  try {
+    auctionUserAddr = userAddress;
+    auctionSigner   = signer;
+    auctionContract = new ethers.Contract(CONFIG.AUCTION_CONTRACT, AUCTION_ABI, signer);
 
     document.getElementById("auctionNotConnected")?.classList.add("hidden");
     document.getElementById("auctionConnected")?.classList.remove("hidden");
     const walletEl = document.getElementById("auctionWalletShort");
-    if (walletEl) walletEl.textContent = `${auctionUserAddr.slice(0,6)}…${auctionUserAddr.slice(-4)}`;
+    if (walletEl) walletEl.textContent = getDisplayName?.(auctionUserAddr) || `${auctionUserAddr.slice(0,6)}…${auctionUserAddr.slice(-4)}`;
 
     const adminAddr = await auctionContract.admin();
     isAuctionAdmin = adminAddr.toLowerCase() === auctionUserAddr.toLowerCase();
@@ -70,14 +65,10 @@ async function initAuctionPage() {
 
     await loadAuctions();
     await checkPendingRefunds();
-    window.ethereum.on("accountsChanged", () => location.reload());
-    window.ethereum.on("chainChanged",    () => location.reload());
   } catch(e) {
     showToast("Connect failed: " + (e.message || e), "error");
   }
 }
-
-async function connectWallet() { await initAuctionPage(); }
 
 /* ─── Load auctions ──────────────────────────────────────────────────────── */
 async function loadAuctionsReadOnly() {

@@ -28,30 +28,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("boardLoading").style.display = "none";
     return;
   }
-  if (window.ethereum?.selectedAddress) {
-    await initBoardPage();
-  } else {
-    await loadMessagesReadOnly();
-  }
+  await loadMessagesReadOnly();
+  if (userAddress) await initBoardPage();
 });
 
-async function initBoardPage() {
-  if (!window.ethereum) return;
-  try {
-    const accounts  = await window.ethereum.request({ method: "eth_requestAccounts" });
-    boardUserAddr   = accounts[0];
-    const provider  = new ethers.providers.Web3Provider(window.ethereum);
-    boardSigner     = provider.getSigner();
-    boardContract   = new ethers.Contract(CONFIG.BOARD_CONTRACT, BOARD_ABI, boardSigner);
+window.addEventListener("wallet:connected", () => initBoardPage());
 
-    await ensureSepolia();
+async function initBoardPage() {
+  if (!userAddress || !signer) return;
+  try {
+    boardUserAddr = userAddress;
+    boardSigner   = signer;
+    boardContract = new ethers.Contract(CONFIG.BOARD_CONTRACT, BOARD_ABI, signer);
 
     document.getElementById("boardNotConnected")?.classList.add("hidden");
     document.getElementById("boardConnected")?.classList.remove("hidden");
     const walletEl = document.getElementById("boardWalletShort");
-    if (walletEl) walletEl.textContent = `${boardUserAddr.slice(0,6)}…${boardUserAddr.slice(-4)}`;
+    if (walletEl) walletEl.textContent = getDisplayName?.(boardUserAddr) || `${boardUserAddr.slice(0,6)}…${boardUserAddr.slice(-4)}`;
 
-    // Unlock post button
     const postBtn = document.getElementById("postBtn");
     if (postBtn) postBtn.disabled = false;
 
@@ -60,14 +54,10 @@ async function initBoardPage() {
     if (isBoardAdmin) document.getElementById("boardAdminBadge")?.classList.remove("hidden");
 
     await loadMessages();
-    window.ethereum.on("accountsChanged", () => location.reload());
-    window.ethereum.on("chainChanged",    () => location.reload());
   } catch(e) {
     showToast("Connect failed: " + (e.message || e), "error");
   }
 }
-
-async function connectWallet() { await initBoardPage(); }
 
 /* ─── Load messages ──────────────────────────────────────────────────────── */
 async function loadMessagesReadOnly() {

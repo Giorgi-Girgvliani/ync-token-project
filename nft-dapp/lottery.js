@@ -31,28 +31,23 @@ document.addEventListener("DOMContentLoaded", async () => {
       "Lottery contract not yet deployed. Deploy Lottery.sol and paste the address in config.js.";
     return;
   }
-  if (window.ethereum?.selectedAddress) {
-    await initLotteryPage();
-  } else {
-    await loadCurrentRoundReadOnly();
-  }
+  await loadCurrentRoundReadOnly();
+  if (userAddress) await initLotteryPage();
 });
 
-async function initLotteryPage() {
-  if (!window.ethereum) return;
-  try {
-    const accounts  = await window.ethereum.request({ method: "eth_requestAccounts" });
-    lotteryUserAddr = accounts[0];
-    const provider  = new ethers.providers.Web3Provider(window.ethereum);
-    lotterySigner   = provider.getSigner();
-    lotteryContract = new ethers.Contract(CONFIG.LOTTERY_CONTRACT, LOTTERY_ABI, lotterySigner);
+window.addEventListener("wallet:connected", () => initLotteryPage());
 
-    await ensureSepolia();
+async function initLotteryPage() {
+  if (!userAddress || !signer) return;
+  try {
+    lotteryUserAddr = userAddress;
+    lotterySigner   = signer;
+    lotteryContract = new ethers.Contract(CONFIG.LOTTERY_CONTRACT, LOTTERY_ABI, signer);
 
     document.getElementById("lotteryNotConnected")?.classList.add("hidden");
     document.getElementById("lotteryConnected")?.classList.remove("hidden");
     const walletEl = document.getElementById("lotteryWalletShort");
-    if (walletEl) walletEl.textContent = `${lotteryUserAddr.slice(0,6)}…${lotteryUserAddr.slice(-4)}`;
+    if (walletEl) walletEl.textContent = getDisplayName?.(lotteryUserAddr) || `${lotteryUserAddr.slice(0,6)}…${lotteryUserAddr.slice(-4)}`;
 
     const adminAddr = await lotteryContract.admin();
     isLotteryAdmin = adminAddr.toLowerCase() === lotteryUserAddr.toLowerCase();
@@ -64,9 +59,6 @@ async function initLotteryPage() {
 
     await loadCurrentRound();
     await loadPastRounds();
-
-    window.ethereum.on("accountsChanged", () => location.reload());
-    window.ethereum.on("chainChanged",    () => location.reload());
   } catch(e) {
     const isCallEx = e.code === "CALL_EXCEPTION" || e.message?.includes("CALL_EXCEPTION");
     showToast(isCallEx
@@ -74,8 +66,6 @@ async function initLotteryPage() {
       : "Connect failed: " + (e.message || e), "error");
   }
 }
-
-async function connectWallet() { await initLotteryPage(); }
 
 /* ─── Load current round ─────────────────────────────────────────────────── */
 async function loadCurrentRoundReadOnly() {
