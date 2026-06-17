@@ -1,0 +1,14 @@
+{
+  "name": "idkSomething NFT #2 — The Silence",
+  "description": "A crystalline cyan hexagonal structure suspended in deep space. Like the token itself, it is geometrically perfect and functionally useless. Part of the idkSomething NFT collection.",
+  "image": "https://ync-token-project.pages.dev/images/2.svg",
+  "external_url": "https://ync-token-project.pages.dev",
+  "attributes": [
+    { "trait_type": "Background",  "value": "Deep Space" },
+    { "trait_type": "Aura",        "value": "Cyan"       },
+    { "trait_type": "Utility",     "value": "None"       },
+    { "trait_type": "Rarity",      "value": "Common"     },
+    { "trait_type": "Vibe Score",  "value": 55, "display_type": "number" },
+    { "trait_type": "Nothingness", "value": 100, "display_type": "boost_percentage" }
+  ]
+}

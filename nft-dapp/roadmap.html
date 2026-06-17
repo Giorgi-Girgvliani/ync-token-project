@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Roadmap — idkSomething NFTs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <canvas id="particleCanvas" class="particle-canvas" aria-hidden="true"></canvas>
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb1" style="background:#10b981"></div>
+    <div class="orb orb2" style="background:#7c3aed"></div>
+    <div class="orb orb3" style="background:#ec4899"></div>
+  </div>
+  <div class="grid-overlay" aria-hidden="true"></div>
+  <div class="grain-overlay" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo" id="navLogo"><span class="logo-dot"></span>YNCNFT</a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html"   class="nav-link">Mint</a>
+      <a href="gallery.html" class="nav-link">My NFTs</a>
+      <a href="about.html"   class="nav-link">About</a>
+      <a href="roadmap.html" class="nav-link active">Roadmap</a>
+    </div>
+    <div class="nav-right">
+      <button class="dark-mode-btn" id="darkModeBtn" onclick="toggleDarkMode()" title="Toggle theme">
+        <span id="darkModeIcon">☀️</span>
+      </button>
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <header class="page-header">
+    <div class="hero-inner">
+      <div class="badge"><span class="badge-dot"></span>Official Project Roadmap</div>
+      <h1 class="page-title">The <span class="gradient-text">Roadmap</span></h1>
+      <p class="page-subtitle">
+        Our detailed plan for the future of idkSomething NFTs.<br/>
+        Please read carefully before investing your time.
+      </p>
+    </div>
+  </header>
+
+  <!-- Nothing Meter -->
+  <section class="section">
+    <div class="section-inner narrow">
+      <div class="nothing-meter-card reveal">
+        <div class="nothing-meter-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Utility Meter
+        </div>
+        <p class="nothing-meter-sub">Measuring current and projected $YNC utility</p>
+        <div class="nothing-bar-wrap">
+          <div class="nothing-bar">
+            <div class="nothing-fill" id="nothingFill"></div>
+          </div>
+          <div class="nothing-labels">
+            <span>Nothing</span>
+            <span>Something</span>
+          </div>
+        </div>
+        <div class="nothing-reading">
+          Current reading: <strong class="gradient-text">0.00%</strong> utility
+          <br/><small style="color:var(--text-muted)">Last updated: The beginning of time</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Timeline -->
+  <section class="section">
+    <div class="section-inner narrow">
+      <h2 class="section-title">Quarterly <span class="gradient-text">Objectives</span></h2>
+      <p class="section-sub">Our ambitious, meticulously planned execution strategy.</p>
+
+      <div class="timeline">
+
+        <div class="timeline-item reveal" data-status="completed">
+          <div class="timeline-dot completed">✓</div>
+          <div class="timeline-card">
+            <div class="timeline-quarter">Q1 2026 <span class="tl-badge completed">Completed</span></div>
+            <h3 class="timeline-title">Do Nothing</h3>
+            <p class="timeline-desc">
+              Successfully deployed a token that does nothing. Achieved with remarkable precision.
+              Zero utility delivered, exactly as promised.
+            </p>
+            <div class="timeline-check">
+              <span class="check-item">✓ Token deployed</span>
+              <span class="check-item">✓ Nothing delivered</span>
+              <span class="check-item">✓ Goals met</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal" data-status="active">
+          <div class="timeline-dot active">→</div>
+          <div class="timeline-card active-card">
+            <div class="timeline-quarter">Q2 2026 <span class="tl-badge active">In Progress</span></div>
+            <h3 class="timeline-title">Continue Doing Nothing</h3>
+            <p class="timeline-desc">
+              Building on the remarkable success of Q1, we are executing our strategic vision of
+              sustained inaction. NFTs minted. Still nothing happening. Ahead of schedule.
+            </p>
+            <div class="timeline-check">
+              <span class="check-item">✓ NFTs deployed</span>
+              <span class="check-item">✓ Website launched</span>
+              <span class="check-item check-pending">○ Continue doing nothing</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal" data-status="upcoming">
+          <div class="timeline-dot upcoming">3</div>
+          <div class="timeline-card">
+            <div class="timeline-quarter">Q3 2026 <span class="tl-badge upcoming">Upcoming</span></div>
+            <h3 class="timeline-title">Achieve Nothing</h3>
+            <p class="timeline-desc">
+              After careful analysis, our team has concluded that the optimal path forward is to achieve
+              nothing. We have allocated significant resources to this initiative.
+            </p>
+            <div class="timeline-check">
+              <span class="check-item check-pending">○ Nothing achieved</span>
+              <span class="check-item check-pending">○ Zero utility maintained</span>
+              <span class="check-item check-pending">○ Vibes sustained</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal" data-status="upcoming">
+          <div class="timeline-dot upcoming">4</div>
+          <div class="timeline-card">
+            <div class="timeline-quarter">Q4 2026 <span class="tl-badge upcoming">Upcoming</span></div>
+            <h3 class="timeline-title">Reflect on the Nothing</h3>
+            <p class="timeline-desc">
+              A full retrospective on everything we didn't do. A moment of zen.
+              A meditation on the void. An annual report with no numbers in it.
+              Perhaps a podcast episode. Probably not.
+            </p>
+            <div class="timeline-check">
+              <span class="check-item check-pending">○ Retrospective on nothing</span>
+              <span class="check-item check-pending">○ Plan more nothing</span>
+              <span class="check-item check-pending">○ 2027 roadmap (also nothing)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal">
+          <div class="timeline-dot future">∞</div>
+          <div class="timeline-card future-card">
+            <div class="timeline-quarter">2027 and Beyond <span class="tl-badge future">Forever</span></div>
+            <h3 class="timeline-title">Nothing, Forever</h3>
+            <p class="timeline-desc">
+              The long-term vision. In a universe 13.8 billion years old, "forever" is a bold claim.
+              But so is claiming your token does something. We make no such claim.
+              $YNC will do nothing, eternally, immutably, on-chain.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Investor FAQ -->
+  <section class="section section-dark reveal">
+    <div class="section-inner narrow">
+      <h2 class="section-title">Investor <span class="gradient-text">FAQ</span></h2>
+      <p class="section-sub">Answers to your most pressing questions.</p>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Will $YNC ever gain utility?
+            <svg class="faq-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-a">No. This is not a bug. This is the feature.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            When moon?
+            <svg class="faq-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-a">The moon is approximately 384,400 km away. $YNC will not be going there. Neither will your investment thesis.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Is there a whitelist?
+            <svg class="faq-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-a">Everyone is on the whitelist. The whitelist is everyone. The concept of exclusivity is antithetical to the spirit of doing nothing.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            What is the token's use case?
+            <svg class="faq-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-a">Existing. On a blockchain. That's it. We encourage you to appreciate the minimalism.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Who is on the team?
+            <svg class="faq-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-a">Giorgi Girgvliani. One person. Doing nothing. Professionally.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="footer-logo">YNCNFT</span>
+      <span>ERC-721 · Sepolia Testnet · 2026</span>
+      <span>By <a href="about.html" class="footer-link">Giorgi Girgvliani</a></span>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="config.js"></script>
+  <script src="particles.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

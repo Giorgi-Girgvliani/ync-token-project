@@ -1,0 +1,14 @@
+{
+  "name": "idkSomething NFT #3 — Pure Vibes",
+  "description": "Pink waves radiating pure vibes across a dark canvas. It catches the eye and touches the soul. It does not, however, do anything. Part of the idkSomething NFT collection.",
+  "image": "https://ync-token-project.pages.dev/images/3.svg",
+  "external_url": "https://ync-token-project.pages.dev",
+  "attributes": [
+    { "trait_type": "Background",  "value": "Dusk"       },
+    { "trait_type": "Aura",        "value": "Pink"       },
+    { "trait_type": "Utility",     "value": "None"       },
+    { "trait_type": "Rarity",      "value": "Uncommon"   },
+    { "trait_type": "Vibe Score",  "value": 77, "display_type": "number" },
+    { "trait_type": "Nothingness", "value": 100, "display_type": "boost_percentage" }
+  ]
+}

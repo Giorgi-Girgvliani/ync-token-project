@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About — idkSomething NFTs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <canvas id="particleCanvas" class="particle-canvas" aria-hidden="true"></canvas>
+
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb1" style="background:#f59e0b"></div>
+    <div class="orb orb2" style="background:#7c3aed"></div>
+    <div class="orb orb3" style="background:#ec4899"></div>
+  </div>
+  <div class="grid-overlay" aria-hidden="true"></div>
+  <div class="grain-overlay" aria-hidden="true"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo"><span class="logo-dot"></span>YNCNFT</a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html"   class="nav-link">Mint</a>
+      <a href="gallery.html" class="nav-link">My NFTs</a>
+      <a href="about.html"   class="nav-link active">About</a>
+      <a href="roadmap.html" class="nav-link">Roadmap</a>
+    </div>
+    <div class="nav-right">
+      <button class="dark-mode-btn" id="darkModeBtn" onclick="toggleDarkMode()" title="Toggle theme">
+        <span id="darkModeIcon">☀️</span>
+      </button>
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <header class="page-header">
+    <div class="hero-inner">
+      <div class="badge"><span class="badge-dot"></span>The Origin Story</div>
+      <h1 class="page-title">About <span class="gradient-text">This Project</span></h1>
+      <p class="page-subtitle">A Web3 dApp that deploys, mints, and displays NFTs — that do nothing.</p>
+    </div>
+  </header>
+
+  <!-- Creator card -->
+  <section class="section">
+    <div class="section-inner narrow">
+
+      <div class="creator-card">
+        <div class="creator-avatar">GG</div>
+        <div class="creator-info">
+          <div class="creator-role">Developer & Token Creator</div>
+          <div class="creator-name">Giorgi Girgvliani</div>
+          <p class="creator-bio">
+            Built the <strong>idkSomething ($YNC)</strong> ERC-20 token, then thought —
+            <em>"why stop at fungible nothingness?"</em><br/><br/>
+            So here we are. 5 unique ERC-721 NFTs, each one beautifully, immutably,
+            and verifiably useless. Deployed on Ethereum Sepolia testnet.
+            Viewable on Etherscan. Minted through this very page.
+          </p>
+        </div>
+      </div>
+
+      <!-- Tech stack -->
+      <h2 class="section-title" style="margin-bottom:10px">Tech Stack</h2>
+      <p class="section-sub">Everything used to build this dApp from scratch.</p>
+
+      <div class="tech-list">
+        <div class="tech-item">
+          <div class="tech-icon purple">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div>
+            <div class="tech-label">Smart Contract</div>
+            <div class="tech-value">Solidity · ERC-721 (OpenZeppelin) · Deployed via Remix IDE</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon pink">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <div>
+            <div class="tech-label">Network</div>
+            <div class="tech-value">Ethereum Sepolia Testnet</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon cyan">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <div>
+            <div class="tech-label">Frontend</div>
+            <div class="tech-value">Vanilla HTML · CSS · JavaScript · ethers.js v5</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon green">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          </div>
+          <div>
+            <div class="tech-label">Hosting</div>
+            <div class="tech-value">Cloudflare Pages (Direct Upload)</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon purple">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/></svg>
+          </div>
+          <div>
+            <div class="tech-label">Wallet</div>
+            <div class="tech-value">MetaMask · EIP-1193 provider</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon pink">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+          </div>
+          <div>
+            <div class="tech-label">Also deployed</div>
+            <div class="tech-value">ERC-20 token: idkSomething ($YNC) — 0x6601...862A</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Philosophy -->
+  <section class="section section-dark">
+    <div class="section-inner narrow">
+      <h2 class="section-title">The Philosophy</h2>
+      <p class="section-sub">Why build something that does nothing?</p>
+
+      <div class="philo-grid">
+        <div class="philo-card">
+          <div class="philo-num">01</div>
+          <h3 class="philo-title">Proof of Skill, Not Utility</h3>
+          <p class="philo-text">
+            Deploying an ERC-721 contract, wiring it to a custom frontend, and hosting
+            a live dApp on Cloudflare Pages demonstrates real Web3 engineering skills —
+            regardless of what the token "does."
+          </p>
+        </div>
+        <div class="philo-card">
+          <div class="philo-num">02</div>
+          <h3 class="philo-title">The Honest Token</h3>
+          <p class="philo-text">
+            Most NFT projects promise community, utility, and value. $YNC promises nothing —
+            and delivers on that promise every single time. In a space full of hype,
+            that's its own kind of integrity.
+          </p>
+        </div>
+        <div class="philo-card">
+          <div class="philo-num">03</div>
+          <h3 class="philo-title">On-Chain Forever</h3>
+          <p class="philo-text">
+            Once minted, these NFTs are immutable. Your wallet owns them.
+            No company can rug-pull something that was never worth anything.
+            The nothingness is permanent.
+          </p>
+        </div>
+        <div class="philo-card">
+          <div class="philo-num">04</div>
+          <h3 class="philo-title">Universe-Scale Perspective</h3>
+          <p class="philo-text">
+            In a universe doing something here probably means nothing anyway.
+            At least $YNC is upfront about it. Own a piece of honest nothingness.
+          </p>
+        </div>
+      </div>
+
+      <blockquote class="big-quote">
+        <p>"In a universe where doing something probably means nothing,<br/>
+        at least <span class="gradient-text">$YNC</span> is honest about it."</p>
+        <footer>— Giorgi Girgvliani, Creator</footer>
+      </blockquote>
+
+      <div class="about-actions">
+        <a href="index.html"   class="btn btn-primary">Mint an NFT →</a>
+        <a href="gallery.html" class="btn btn-ghost">My Collection</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="footer-logo">YNCNFT</span>
+      <span>ERC-721 · Sepolia Testnet · 2026</span>
+      <span>By <a href="about.html" class="footer-link">Giorgi Girgvliani</a></span>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="config.js"></script>
+  <script src="particles.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

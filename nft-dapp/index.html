@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>idkSomething NFTs — Mint</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- Cursor trail container -->
+  <div id="cursorTrail" aria-hidden="true"></div>
+
+  <!-- Particle canvas -->
+  <canvas id="particleCanvas" class="particle-canvas" aria-hidden="true"></canvas>
+
+  <!-- Matrix rain canvas (hidden, triggered by NFT #4) -->
+  <canvas id="matrixCanvas" class="matrix-canvas hidden" aria-hidden="true"></canvas>
+
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+  </div>
+  <div class="grid-overlay" aria-hidden="true"></div>
+  <div class="grain-overlay" aria-hidden="true"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo" id="navLogo" title="Click 5× for a surprise">
+      <span class="logo-dot"></span>YNCNFT
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html"   class="nav-link active">Mint</a>
+      <a href="gallery.html" class="nav-link">My NFTs</a>
+      <a href="about.html"   class="nav-link">About</a>
+      <a href="roadmap.html" class="nav-link">Roadmap</a>
+    </div>
+    <div class="nav-right">
+      <!-- Gas tracker pill -->
+      <div class="gas-pill" id="gasPill" title="Current Sepolia gas price">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V8l9-6 9 6v14"/><path d="M9 22V12h6v10"/></svg>
+        <span id="gasPrice">—</span> gwei
+      </div>
+      <button class="dark-mode-btn" id="darkModeBtn" onclick="toggleDarkMode()" title="Toggle theme">
+        <span id="darkModeIcon">☀️</span>
+      </button>
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero — two column -->
+  <header class="hero hero-split">
+    <div class="hero-left reveal">
+      <div class="badge"><span class="badge-dot"></span>5 NFTs · Sepolia Testnet · Free Mint</div>
+
+      <!-- Spinning coin -->
+      <div class="coin-wrap" aria-hidden="true">
+        <div class="coin">
+          <div class="coin-face coin-front">YNC</div>
+          <div class="coin-face coin-back">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <h1 class="hero-title">
+        idk<span class="gradient-text">Something</span><br/>
+        <span class="hero-title-sub">NFT Collection</span>
+      </h1>
+
+      <p class="hero-sub" id="heroSub"></p>
+
+      <div id="notConnected" class="connect-prompt">
+        <button class="btn btn-primary btn-lg glow-btn" onclick="connectWallet()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+          Connect Wallet to Mint
+        </button>
+        <p class="connect-hint">MetaMask · Sepolia Testnet</p>
+      </div>
+
+      <div id="mintPanel" class="mint-panel-wrap hidden">
+        <div class="mint-panel">
+          <!-- ENS / address row -->
+          <div class="wallet-row">
+            <div class="wallet-pill">
+              <span class="status-dot"></span>
+              <span id="walletShort" class="mono">—</span>
+            </div>
+            <div class="balance-pills">
+              <span class="pill purple">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/></svg>
+                <span id="ethBalance">0</span> ETH
+              </span>
+              <span class="pill pink">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 2 7 12 22 22 7"/></svg>
+                <span id="yncBalance">0</span> YNC
+              </span>
+            </div>
+          </div>
+
+          <!-- Countdown remaining -->
+          <div class="countdown-wrap" id="countdownWrap">
+            <div class="countdown-inner">
+              <span class="countdown-num" id="remainingCount">5</span>
+              <span class="countdown-label">spots remaining</span>
+            </div>
+            <div class="countdown-dots" id="countdownDots"></div>
+          </div>
+
+          <!-- Supply bar -->
+          <div class="supply-bar-wrap">
+            <div class="supply-label">
+              <span>Minted</span>
+              <span><strong id="minted">0</strong> / <strong id="maxSupply">5</strong></span>
+            </div>
+            <div class="supply-bar">
+              <div class="supply-fill" id="supplyFill" style="width:0%"></div>
+            </div>
+          </div>
+
+          <!-- Mint button -->
+          <button class="btn btn-primary btn-lg btn-mint glow-btn" id="mintBtn" onclick="mint()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            Mint Free NFT
+          </button>
+          <p class="mint-note">Free mint · Pay gas only · 1 per tx</p>
+
+          <!-- Add to MetaMask + gallery -->
+          <div class="mint-extra-btns">
+            <button class="btn btn-ghost btn-sm" onclick="addYNCToMetaMask()">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" width="14" height="14" alt=""/> Add YNC
+            </button>
+            <a href="gallery.html" class="btn btn-ghost btn-sm">My NFTs →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: floating NFT showcase -->
+    <div class="hero-right" aria-hidden="true">
+      <div class="nft-showcase">
+        <div class="showcase-card sc-back tilt-card">
+          <img src="images/1.svg" alt=""/><div class="shimmer"></div>
+        </div>
+        <div class="showcase-card sc-mid tilt-card">
+          <img src="images/4.svg" alt=""/><div class="shimmer"></div>
+        </div>
+        <div class="showcase-card sc-front tilt-card holo-card">
+          <img src="images/5.svg" alt=""/>
+          <div class="shimmer"></div>
+          <div class="holo-overlay"></div>
+          <div class="showcase-badge">Legendary</div>
+        </div>
+      </div>
+      <div class="showcase-glow" aria-hidden="true"></div>
+    </div>
+  </header>
+
+  <!-- Stats bar -->
+  <section class="stats-bar reveal">
+    <div class="stat-counter"><span class="stat-num" data-target="5">0</span><span class="stat-label">Unique NFTs</span></div>
+    <div class="stat-counter"><span class="stat-num gradient-text" data-target="0">0</span><span class="stat-label">Utility</span></div>
+    <div class="stat-counter"><span class="stat-num" data-target="100" data-suffix="%">0</span><span class="stat-label">Vibes</span></div>
+    <div class="stat-counter"><span class="stat-num" data-target="1">0</span><span class="stat-label">Smart Contract</span></div>
+    <div class="stat-counter"><span class="stat-num" data-target="721">0</span><span class="stat-label">ERC Standard</span></div>
+  </section>
+
+  <!-- Live activity feed -->
+  <section class="section reveal">
+    <div class="section-inner">
+      <div class="activity-header">
+        <div>
+          <h2 class="section-title">Live <span class="gradient-text">Activity</span></h2>
+          <p class="section-sub">Real-time mint events from the blockchain.</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="refreshActivity()">↺ Refresh</button>
+      </div>
+      <div class="activity-feed" id="activityFeed">
+        <div class="activity-empty">Connect wallet or wait for mints to appear…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Collection with filter -->
+  <section class="section reveal">
+    <div class="section-inner">
+      <h2 class="section-title">The <span class="gradient-text">Collection</span></h2>
+      <p class="section-sub">5 pieces. 0 utility. 100% vibes.</p>
+
+      <div class="rarity-filter" id="rarityFilter">
+        <button class="filter-btn active" data-filter="all"    onclick="filterRarity('all', this)">All</button>
+        <button class="filter-btn"        data-filter="Common" onclick="filterRarity('Common', this)">Common</button>
+        <button class="filter-btn"        data-filter="Uncommon" onclick="filterRarity('Uncommon', this)">Uncommon</button>
+        <button class="filter-btn"        data-filter="Rare"   onclick="filterRarity('Rare', this)">Rare</button>
+        <button class="filter-btn"        data-filter="Legendary" onclick="filterRarity('Legendary', this)">
+          <span style="color:#fbbf24">★</span> Legendary
+        </button>
+      </div>
+
+      <div class="preview-grid" id="collectionGrid">
+        <div class="preview-card tilt-card holo-card" data-rarity="Common" onclick="openNFTModal(1)">
+          <div class="preview-img-wrap"><img src="images/1.svg" alt="NFT #1"/><div class="shimmer"></div><div class="holo-overlay"></div><div class="preview-overlay"><span>View Details</span></div></div>
+          <div class="preview-label">#1 · The Void <span class="rarity common">Common</span></div>
+        </div>
+        <div class="preview-card tilt-card holo-card" data-rarity="Common" onclick="openNFTModal(2)">
+          <div class="preview-img-wrap"><img src="images/2.svg" alt="NFT #2"/><div class="shimmer"></div><div class="holo-overlay"></div><div class="preview-overlay"><span>View Details</span></div></div>
+          <div class="preview-label">#2 · The Silence <span class="rarity common">Common</span></div>
+        </div>
+        <div class="preview-card tilt-card holo-card" data-rarity="Uncommon" onclick="openNFTModal(3)">
+          <div class="preview-img-wrap"><img src="images/3.svg" alt="NFT #3"/><div class="shimmer"></div><div class="holo-overlay"></div><div class="preview-overlay"><span>View Details</span></div></div>
+          <div class="preview-label">#3 · Pure Vibes <span class="rarity uncommon">Uncommon</span></div>
+        </div>
+        <div class="preview-card tilt-card holo-card" data-rarity="Rare" onclick="openNFTModal(4)">
+          <div class="preview-img-wrap"><img src="images/4.svg" alt="NFT #4" id="nft4img"/><div class="shimmer"></div><div class="holo-overlay"></div><div class="preview-overlay"><span>View Details</span></div></div>
+          <div class="preview-label">#4 · The Matrix <span class="rarity rare">Rare</span></div>
+        </div>
+        <div class="preview-card tilt-card holo-card" data-rarity="Legendary" onclick="openNFTModal(5)">
+          <div class="preview-img-wrap"><img src="images/5.svg" alt="NFT #5"/><div class="shimmer"></div><div class="holo-overlay"></div><div class="preview-overlay"><span>View Details</span></div></div>
+          <div class="preview-label">#5 · Legendary Nothing <span class="rarity legendary">Legendary</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ownership checker -->
+  <section class="section section-dark reveal">
+    <div class="section-inner narrow">
+      <h2 class="section-title">Check <span class="gradient-text">Ownership</span></h2>
+      <p class="section-sub">Enter any wallet address to see their idkSomething NFTs.</p>
+      <div class="ownership-form">
+        <input class="ownership-input" id="ownershipInput" type="text" placeholder="0x... wallet address" autocomplete="off"/>
+        <button class="btn btn-primary" onclick="checkOwnership()">Check</button>
+      </div>
+      <div id="ownershipResult" class="ownership-result hidden"></div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="section reveal">
+    <div class="section-inner">
+      <div class="features-grid">
+        <div class="feature-card tilt-card">
+          <div class="feature-icon purple"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <h3>ERC-721 Standard</h3>
+          <p>On-chain ownership. Compatible with any NFT wallet or explorer.</p>
+        </div>
+        <div class="feature-card tilt-card">
+          <div class="feature-icon pink"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <h3>Instant Mint</h3>
+          <p>Confirm in MetaMask, done. Your NFT lands on-chain immediately.</p>
+        </div>
+        <div class="feature-card tilt-card">
+          <div class="feature-icon cyan"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+          <h3>5 Unique Pieces</h3>
+          <p>Common → Legendary. First come, first minted.</p>
+        </div>
+        <div class="feature-card tilt-card">
+          <div class="feature-icon green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <h3>Verifiable On-Chain</h3>
+          <p>Every mint is a real Ethereum transaction. Check it on Etherscan.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section section-dark reveal">
+    <div class="section-inner narrow">
+      <h2 class="section-title"><span class="gradient-text">FAQ</span></h2>
+      <p class="section-sub">Questions you definitely had.</p>
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">What does this NFT do?<svg class="faq-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+          <div class="faq-a">Nothing. That's the point. It exists on the blockchain, immutably and pointlessly. Cherish it.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">Is this free to mint?<svg class="faq-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+          <div class="faq-a">Yes. You only pay gas. Which on Sepolia testnet is effectively nothing — fitting for a token that does nothing.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">What network is this on?<svg class="faq-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+          <div class="faq-a">Ethereum Sepolia Testnet. The site will automatically prompt MetaMask to switch networks when you connect.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">Can I see my NFT after minting?<svg class="faq-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+          <div class="faq-a">Yes! Go to the "My NFTs" page and connect your wallet. You'll see every token you own with its full trait breakdown.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">Who made this?<svg class="faq-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+          <div class="faq-a">Giorgi Girgvliani. A developer who deployed an ERC-20 token that does nothing, then thought — why not also deploy ERC-721 NFTs that do nothing?</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="footer-logo">YNCNFT</span>
+      <span>ERC-721 · Sepolia Testnet · 2026</span>
+      <span>By <a href="about.html" class="footer-link">Giorgi Girgvliani</a></span>
+    </div>
+  </footer>
+
+  <!-- NFT Detail Modal -->
+  <div class="modal-overlay hidden" id="nftModal" onclick="closeNFTModal(event)">
+    <div class="nft-modal">
+      <button class="modal-close" onclick="closeNFTModal()">✕</button>
+      <div class="nft-modal-inner">
+        <div class="nft-modal-img-wrap holo-card">
+          <img id="modalImg" src="" alt=""/>
+          <div class="holo-overlay"></div>
+        </div>
+        <div class="nft-modal-info">
+          <div class="modal-badge" id="modalRarityBadge"></div>
+          <h2 class="modal-title" id="modalTitle"></h2>
+          <p class="modal-desc" id="modalDesc"></p>
+          <div class="modal-traits" id="modalTraits"></div>
+          <div class="modal-actions">
+            <a id="modalEtherscan" href="#" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">
+              View on Etherscan ↗
+            </a>
+            <button class="btn btn-primary btn-sm" onclick="mint()" id="modalMintBtn">Mint This NFT</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TX Receipt Modal -->
+  <div class="modal-overlay hidden" id="receiptModal" onclick="closeReceiptModal(event)">
+    <div class="receipt-modal">
+      <button class="modal-close" onclick="closeReceiptModal()">✕</button>
+      <div class="receipt-header">
+        <div class="receipt-icon">🎉</div>
+        <h2>Mint Successful!</h2>
+        <p>Your NFT is now on the Ethereum blockchain.</p>
+      </div>
+      <div class="receipt-body" id="receiptBody"></div>
+      <div class="receipt-actions">
+        <button class="btn btn-ghost btn-sm" id="shareBtn" onclick="shareOnX()">Share on 𝕏</button>
+        <a id="receiptEtherscan" href="#" target="_blank" class="btn btn-primary btn-sm">View on Etherscan ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+  <script src="config.js"></script>
+  <script src="particles.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

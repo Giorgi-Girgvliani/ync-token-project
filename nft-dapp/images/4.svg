@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bg4" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#001a00"/>
+      <stop offset="100%" stop-color="#000800"/>
+    </linearGradient>
+    <radialGradient id="glow4" cx="50%" cy="50%" r="45%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blurGreen"><feGaussianBlur stdDeviation="12"/></filter>
+  </defs>
+
+  <rect width="400" height="400" fill="url(#bg4)"/>
+  <circle cx="200" cy="200" r="150" fill="url(#glow4)" filter="url(#blurGreen)"/>
+
+  <!-- Matrix columns - falling character-like lines -->
+  <!-- Col 1 -->
+  <rect x="30" y="40" width="2" height="60" fill="#10b981" fill-opacity="0.7" rx="1"/>
+  <rect x="30" y="120" width="2" height="30" fill="#10b981" fill-opacity="0.4" rx="1"/>
+  <rect x="30" y="200" width="2" height="80" fill="#10b981" fill-opacity="0.5" rx="1"/>
+  <!-- Col 2 -->
+  <rect x="60" y="20" width="2" height="40" fill="#34d399" fill-opacity="0.6" rx="1"/>
+  <rect x="60" y="100" width="2" height="100" fill="#10b981" fill-opacity="0.5" rx="1"/>
+  <rect x="60" y="260" width="2" height="50" fill="#10b981" fill-opacity="0.3" rx="1"/>
+  <!-- Col 3 -->
+  <rect x="90" y="60" width="2" height="80" fill="#10b981" fill-opacity="0.4" rx="1"/>
+  <rect x="90" y="200" width="2" height="60" fill="#34d399" fill-opacity="0.6" rx="1"/>
+  <!-- Col left-center -->
+  <rect x="130" y="30" width="2" height="50" fill="#10b981" fill-opacity="0.3" rx="1"/>
+  <rect x="130" y="140" width="2" height="120" fill="#10b981" fill-opacity="0.5" rx="1"/>
+  <!-- Col right-center -->
+  <rect x="270" y="50" width="2" height="90" fill="#10b981" fill-opacity="0.4" rx="1"/>
+  <rect x="270" y="210" width="2" height="70" fill="#34d399" fill-opacity="0.5" rx="1"/>
+  <!-- Col 7 -->
+  <rect x="310" y="20" width="2" height="60" fill="#10b981" fill-opacity="0.6" rx="1"/>
+  <rect x="310" y="130" width="2" height="40" fill="#10b981" fill-opacity="0.3" rx="1"/>
+  <rect x="310" y="230" width="2" height="80" fill="#10b981" fill-opacity="0.5" rx="1"/>
+  <!-- Col 8 -->
+  <rect x="350" y="40" width="2" height="110" fill="#10b981" fill-opacity="0.4" rx="1"/>
+  <rect x="350" y="200" width="2" height="50" fill="#34d399" fill-opacity="0.6" rx="1"/>
+  <!-- Col 9 -->
+  <rect x="375" y="60" width="2" height="80" fill="#10b981" fill-opacity="0.3" rx="1"/>
+  <rect x="375" y="220" width="2" height="60" fill="#10b981" fill-opacity="0.4" rx="1"/>
+
+  <!-- Center circle -->
+  <circle cx="200" cy="200" r="55" fill="none" stroke="#10b981" stroke-width="2" stroke-opacity="0.8"/>
+  <circle cx="200" cy="200" r="42" fill="none" stroke="#34d399" stroke-width="1" stroke-opacity="0.5"/>
+  <circle cx="200" cy="200" r="28" fill="#10b981" fill-opacity="0.15"/>
+  <!-- Binary text around circle -->
+  <text x="200" y="204" font-family="'Courier New',monospace" font-size="14" fill="#6ee7b7" fill-opacity="0.9" text-anchor="middle" font-weight="bold">YNC</text>
+  <text x="200" y="218" font-family="'Courier New',monospace" font-size="7" fill="#10b981" fill-opacity="0.6" text-anchor="middle">01001110</text>
+
+  <!-- Label bar -->
+  <rect x="0" y="340" width="400" height="60" fill="black" fill-opacity="0.65"/>
+  <rect x="0" y="340" width="400" height="1" fill="#10b981" fill-opacity="0.7"/>
+
+  <text x="20" y="368" font-family="'Courier New',monospace" font-size="11" fill="#6ee7b7" font-weight="bold">#4 / 5</text>
+  <text x="20" y="386" font-family="Arial,sans-serif" font-size="13" fill="white" font-weight="bold">The Matrix</text>
+  <text x="370" y="375" font-family="Arial,sans-serif" font-size="10" fill="#10b981" font-weight="bold" text-anchor="end">YNC</text>
+  <text x="370" y="388" font-family="Arial,sans-serif" font-size="9" fill="#059669" text-anchor="end">RARE</text>
+</svg>

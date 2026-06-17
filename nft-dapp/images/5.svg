@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <radialGradient id="bg5" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#1c1000"/>
+      <stop offset="100%" stop-color="#050200"/>
+    </radialGradient>
+    <radialGradient id="goldGlow" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="crownGrad" cx="50%" cy="0%" r="100%">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="60%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </radialGradient>
+    <filter id="blurGold"><feGaussianBlur stdDeviation="20"/></filter>
+    <filter id="blurGold2"><feGaussianBlur stdDeviation="4"/></filter>
+  </defs>
+
+  <rect width="400" height="400" fill="url(#bg5)"/>
+  <circle cx="200" cy="170" r="160" fill="url(#goldGlow)" filter="url(#blurGold)"/>
+
+  <!-- Crown shape -->
+  <polygon points="120,230 140,150 170,195 200,130 230,195 260,150 280,230"
+           fill="url(#crownGrad)" stroke="#fde68a" stroke-width="1.5" stroke-opacity="0.6" filter="url(#blurGold2)"/>
+  <polygon points="120,230 140,150 170,195 200,130 230,195 260,150 280,230"
+           fill="url(#crownGrad)" stroke="#fde68a" stroke-width="1"/>
+
+  <!-- Crown base -->
+  <rect x="118" y="228" width="164" height="28" rx="4" fill="url(#crownGrad)" stroke="#fde68a" stroke-width="1"/>
+
+  <!-- Jewels on crown -->
+  <circle cx="200" cy="138" r="8" fill="#fde68a" stroke="#fff" stroke-width="1"/>
+  <circle cx="145" cy="157" r="6" fill="#fbbf24" stroke="#fde68a" stroke-width="0.5"/>
+  <circle cx="255" cy="157" r="6" fill="#fbbf24" stroke="#fde68a" stroke-width="0.5"/>
+
+  <!-- Shine lines -->
+  <line x1="200" y1="80" x2="200" y2="110" stroke="#fde68a" stroke-width="1.5" stroke-opacity="0.6"/>
+  <line x1="175" y1="87" x2="183" y2="112" stroke="#fde68a" stroke-width="1" stroke-opacity="0.4"/>
+  <line x1="225" y1="87" x2="217" y2="112" stroke="#fde68a" stroke-width="1" stroke-opacity="0.4"/>
+
+  <!-- Stars -->
+  <circle cx="80" cy="80" r="2" fill="#fde68a" fill-opacity="0.7"/>
+  <circle cx="320" cy="70" r="1.5" fill="#fde68a" fill-opacity="0.6"/>
+  <circle cx="50" cy="200" r="1.2" fill="#fbbf24" fill-opacity="0.5"/>
+  <circle cx="360" cy="180" r="1.8" fill="#fde68a" fill-opacity="0.7"/>
+  <circle cx="100" cy="300" r="1" fill="#fbbf24" fill-opacity="0.4"/>
+  <circle cx="340" cy="290" r="1.2" fill="#fde68a" fill-opacity="0.5"/>
+
+  <!-- Label bar -->
+  <rect x="0" y="340" width="400" height="60" fill="black" fill-opacity="0.7"/>
+  <rect x="0" y="340" width="400" height="1" fill="#f59e0b" fill-opacity="0.8"/>
+
+  <text x="20" y="368" font-family="'Courier New',monospace" font-size="11" fill="#fde68a" font-weight="bold">#5 / 5</text>
+  <text x="20" y="386" font-family="Arial,sans-serif" font-size="13" fill="white" font-weight="bold">Legendary Nothing</text>
+  <text x="370" y="375" font-family="Arial,sans-serif" font-size="10" fill="#f59e0b" font-weight="bold" text-anchor="end">YNC</text>
+  <text x="370" y="388" font-family="Arial,sans-serif" font-size="9" fill="#b45309" text-anchor="end">LEGENDARY</text>
+</svg>

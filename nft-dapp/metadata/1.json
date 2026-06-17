@@ -1,0 +1,14 @@
+{
+  "name": "idkSomething NFT #1 — The Void",
+  "description": "A swirling purple void that represents the grand nothingness of existence. Part of the idkSomething NFT collection by Giorgi Girgvliani. It does nothing. Beautifully.",
+  "image": "https://ync-token-project.pages.dev/images/1.svg",
+  "external_url": "https://ync-token-project.pages.dev",
+  "attributes": [
+    { "trait_type": "Background",  "value": "Void"     },
+    { "trait_type": "Aura",        "value": "Purple"   },
+    { "trait_type": "Utility",     "value": "None"     },
+    { "trait_type": "Rarity",      "value": "Common"   },
+    { "trait_type": "Vibe Score",  "value": 42,  "display_type": "number" },
+    { "trait_type": "Nothingness", "value": 100, "display_type": "boost_percentage" }
+  ]
+}

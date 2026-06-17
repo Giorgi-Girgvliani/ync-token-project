@@ -1,0 +1,14 @@
+{
+  "name": "idkSomething NFT #4 — The Matrix",
+  "description": "Green data cascades into the void, encoding the philosophical truth that all blockchain transactions ultimately resolve to nothing of cosmic significance. Part of the idkSomething NFT collection.",
+  "image": "https://ync-token-project.pages.dev/images/4.svg",
+  "external_url": "https://ync-token-project.pages.dev",
+  "attributes": [
+    { "trait_type": "Background",  "value": "Matrix"  },
+    { "trait_type": "Aura",        "value": "Green"   },
+    { "trait_type": "Utility",     "value": "None"    },
+    { "trait_type": "Rarity",      "value": "Rare"    },
+    { "trait_type": "Vibe Score",  "value": 88, "display_type": "number" },
+    { "trait_type": "Nothingness", "value": 100, "display_type": "boost_percentage" }
+  ]
+}
