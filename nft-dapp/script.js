@@ -20,9 +20,9 @@ const ERC20_ABI = [
 
 /* ─── CORS-friendly public Sepolia RPCs (tried in order) ────────────────── */
 const SEPOLIA_RPCS = [
-  "https://ethereum-sepolia-rpc.publicnode.com",
   "https://sepolia.drpc.org",
   "https://rpc2.sepolia.org",
+  "https://ethereum-sepolia-rpc.publicnode.com",
 ];
 
 async function getReadProvider() {
@@ -645,6 +645,13 @@ async function addYNCToMetaMask() {
 const NFT_NAMES = {1:"The Void",2:"The Silence",3:"Pure Vibes",4:"The Matrix",5:"Legendary Nothing"};
 const NFT_EMOJIS = {1:"🌌",2:"🔷",3:"💗",4:"💚",5:"👑"};
 
+async function fetchMintedTokenOwners(con, total) {
+  const owners = await Promise.all(
+    Array.from({ length: total }, (_, i) => con.ownerOf(i + 1))
+  );
+  return owners.map((owner, i) => ({ tokenId: i + 1, owner: owner.toLowerCase() }));
+}
+
 async function refreshActivity() {
   const feed = document.getElementById("activityFeed");
   if (!feed || typeof ethers === "undefined") return;
@@ -653,42 +660,27 @@ async function refreshActivity() {
     return;
   }
   try {
-    const p    = await getReadProvider();
-    const con  = new ethers.Contract(CONFIG.NFT_CONTRACT, NFT_ABI, p);
-    const ZERO = "0x0000000000000000000000000000000000000000";
+    const p   = await getReadProvider();
+    const con = new ethers.Contract(CONFIG.NFT_CONTRACT, NFT_ABI, p);
+    const total = (await con.totalSupply()).toNumber();
 
-    // Use Transfer events: from=0x0 means mint, otherwise a transfer
-    const events = await con.queryFilter(con.filters.Transfer(), -10000);
-
-    if (!events.length) {
+    if (!total) {
       feed.innerHTML = `<div class="activity-empty">No mints yet. Be the first!</div>`;
       return;
     }
 
+    const tokens = await fetchMintedTokenOwners(con, total);
     feed.innerHTML = "";
-    const reversed = [...events].reverse().slice(0, 10);
-    for (const ev of reversed) {
-      const from    = ev.args.from.toLowerCase();
-      const to      = ev.args.to;
-      const tokenId = ev.args.tokenId.toNumber();
-      const isMint  = from === ZERO;
-      const short   = `${to.slice(0,6)}…${to.slice(-4)}`;
-      const block   = await p.getBlock(ev.blockNumber);
-      const time    = block ? new Date(block.timestamp * 1000).toLocaleTimeString() : "";
-      const action  = isMint ? "minted" : "received";
-      const color   = isMint
-        ? "linear-gradient(135deg,#7c3aed,#ec4899)"
-        : "linear-gradient(135deg,#0891b2,#10b981)";
-
+    for (const { tokenId, owner } of [...tokens].reverse().slice(0, 10)) {
+      const short = `${owner.slice(0, 6)}…${owner.slice(-4)}`;
       const item = document.createElement("div");
       item.className = "activity-item";
       item.innerHTML = `
-        <div class="activity-avatar" style="background:${color}">${NFT_EMOJIS[tokenId]||"🎨"}</div>
+        <div class="activity-avatar" style="background:linear-gradient(135deg,#7c3aed,#ec4899)">${NFT_EMOJIS[tokenId] || "🎨"}</div>
         <div class="activity-text">
           <span class="activity-addr">${short}</span>
-          <strong> ${action} #${tokenId} — ${NFT_NAMES[tokenId]||"?"}</strong>
+          <strong> holds #${tokenId} — ${NFT_NAMES[tokenId] || "?"}</strong>
         </div>
-        <span class="activity-time">${time}</span>
       `;
       feed.appendChild(item);
     }
@@ -1082,12 +1074,8 @@ async function loadLeaderboard() {
 
     // Count current owners via ownerOf (no archive eth_getLogs required)
     const ownerMap = {};
-    const owners = await Promise.all(
-      Array.from({ length: total }, (_, i) => con.ownerOf(i + 1))
-    );
-    owners.forEach(o => {
-      const addr = o.toLowerCase();
-      ownerMap[addr] = (ownerMap[addr] || 0) + 1;
+    (await fetchMintedTokenOwners(con, total)).forEach(({ owner }) => {
+      ownerMap[owner] = (ownerMap[owner] || 0) + 1;
     });
 
     const sorted = Object.entries(ownerMap).sort((a,b) => b[1]-a[1]);
