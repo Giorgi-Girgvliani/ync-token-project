@@ -52,8 +52,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (userAddress) return;
     const wc = e.detail?.provider || window.getWalletConnectProvider?.();
     if (!wc?.accounts?.length) return;
-    const ok = await wireWallet(wc, { silent: false });
-    if (ok) showToast("Wallet connected!");
+    try {
+      await wireWallet(wc, { silent: false });
+    } catch (err) {
+      showToast("Could not finish connecting: " + (err?.message || err), "error");
+    }
   });
 });
 
@@ -111,8 +114,6 @@ async function wireWallet(eip1193, { silent = false } = {}) {
   if (!accounts?.[0] && eip1193.accounts?.length) accounts = eip1193.accounts;
   if (!accounts?.[0]) return false;
 
-  await ensureSepolia(eip1193);
-
   userAddress = accounts[0];
   provider = new ethers.providers.Web3Provider(eip1193);
   signer   = provider.getSigner();
@@ -137,6 +138,14 @@ async function wireWallet(eip1193, { silent = false } = {}) {
   }));
 
   bindWalletEvents(eip1193);
+
+  // Network switch is separate — don't block "connected" if user skips or misses the prompt
+  const onSepolia = await ensureSepolia(eip1193).catch(() => false);
+  if (!silent) {
+    if (onSepolia) showToast("Wallet connected on Sepolia!");
+    else showToast("Wallet connected. Open your wallet app and switch to Sepolia to mint or transfer.", "error");
+  }
+
   return true;
 }
 
@@ -241,42 +250,54 @@ function renderDisconnectedPages() {
 async function ensureSepolia(eip1193 = walletEip1193 || window.ethereum) {
   if (!eip1193) throw new Error("No wallet provider");
 
-  const wc = isWalletConnectProvider(eip1193);
-  if (wc && !eip1193.connected) await eip1193.connect();
-
   let chainId;
   if (eip1193.chainId != null) {
     chainId = "0x" + Number(eip1193.chainId).toString(16);
   } else {
     chainId = await eip1193.request({ method: "eth_chainId" });
   }
-  if (chainId.toLowerCase() === CONFIG.SEPOLIA_CHAIN_ID) return;
+  if (chainId.toLowerCase() === CONFIG.SEPOLIA_CHAIN_ID) return true;
 
   try {
     await eip1193.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: CONFIG.SEPOLIA_CHAIN_ID }],
     });
+    return true;
   } catch (err) {
     if (err.code === 4902) {
-      await eip1193.request({
-        method: "wallet_addEthereumChain",
-        params: [{
-          chainId: CONFIG.SEPOLIA_CHAIN_ID,
-          chainName: "Sepolia Testnet",
-          nativeCurrency: { name: "SepoliaETH", symbol: "ETH", decimals: 18 },
-          rpcUrls: CONFIG.SEPOLIA_RPCS,
-          blockExplorerUrls: ["https://sepolia.etherscan.io"],
-        }],
-      });
-      await eip1193.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: CONFIG.SEPOLIA_CHAIN_ID }],
-      });
-    } else {
-      throw err;
+      try {
+        await eip1193.request({
+          method: "wallet_addEthereumChain",
+          params: [{
+            chainId: CONFIG.SEPOLIA_CHAIN_ID,
+            chainName: "Sepolia Testnet",
+            nativeCurrency: { name: "SepoliaETH", symbol: "ETH", decimals: 18 },
+            rpcUrls: CONFIG.SEPOLIA_RPCS,
+            blockExplorerUrls: ["https://sepolia.etherscan.io"],
+          }],
+        });
+        await eip1193.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: CONFIG.SEPOLIA_CHAIN_ID }],
+        });
+        return true;
+      } catch {
+        return false;
+      }
     }
+    if (err.code === 4001) return false;
+    return false;
   }
+}
+
+async function requireSepoliaForTx() {
+  const ok = await ensureSepolia(walletEip1193 || window.ethereum);
+  if (!ok) {
+    showToast("Switch your wallet to Sepolia testnet, then try again.", "error");
+    return false;
+  }
+  return true;
 }
 
 async function updateNavWallet() {
@@ -348,6 +369,7 @@ async function mint() {
     showToast("Deploy your contract first and add address to config.js", "error");
     return;
   }
+  if (!(await requireSepoliaForTx())) return;
 
   const btn = document.getElementById("mintBtn");
   if (!btn) return;
@@ -1203,6 +1225,7 @@ async function confirmTransfer() {
     showToast("Enter a valid 0x address.", "error"); return;
   }
   if (!nftContract || !userAddress) { showToast("Connect wallet first.", "error"); return; }
+  if (!(await requireSepoliaForTx())) return;
   const btn = document.getElementById("transferConfirmBtn");
   if (btn) { btn.disabled = true; btn.textContent = "Sending…"; }
   try {
