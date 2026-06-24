@@ -86,16 +86,22 @@ window.showWcReturnBanner = function showWcReturnBanner() {
   el.className = "wc-return-banner";
   el.innerHTML = `
     <div class="wc-return-inner">
-      <p><strong>Waiting for wallet approval…</strong></p>
-      <p class="wc-return-sub">After you tap Connect in your wallet, you should return here automatically. If not, tap below.</p>
+      <p><strong>Approved in your wallet?</strong> Tap to finish connecting.</p>
       <div class="wc-return-actions">
         <a href="${returnUrl}" class="btn btn-primary btn-sm">Return to site</a>
-        <a href="${window.getMetaMaskBrowserUrl()}" class="btn btn-ghost btn-sm">Open in MetaMask browser</a>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="window.hideWcReturnBanner()">Dismiss</button>
       </div>
     </div>
   `;
   document.body.appendChild(el);
 };
+
+function maybeShowReturnHint() {
+  if (sessionStorage.getItem(WC_PENDING_KEY) !== "1") return;
+  const p = wcProvider;
+  if (p?.connected && p?.accounts?.length) return;
+  window.showWcReturnBanner?.();
+}
 
 window.hideWcReturnBanner = function hideWcReturnBanner() {
   document.getElementById("wcReturnBanner")?.remove();
@@ -130,7 +136,7 @@ window.connectViaWalletConnect = async function connectViaWalletConnect() {
   if (p.connected && p.accounts?.length) return p;
 
   sessionStorage.setItem(WC_PENDING_KEY, "1");
-  window.showWcReturnBanner?.();
+  window.hideWcReturnBanner?.();
 
   if (!p.connected) await p.connect();
 
@@ -145,7 +151,7 @@ window.connectViaWalletConnect = async function connectViaWalletConnect() {
 
   if (p.session) return p;
 
-  throw new Error("Connection not completed. Approve in your wallet — you should return here automatically.");
+  maybeShowReturnHint();
 };
 
 window.trySilentWalletConnect = async function trySilentWalletConnect() {
@@ -184,7 +190,9 @@ async function resumeAfterWalletRedirect() {
 
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") {
-    window.finishPendingWalletConnect?.();
+    window.finishPendingWalletConnect?.().then(ok => {
+      if (!ok) maybeShowReturnHint();
+    });
   }
 });
 window.addEventListener("pageshow", () => {
