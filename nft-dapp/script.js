@@ -142,6 +142,10 @@ async function connectWallet(silent = false) {
 
     // WalletConnect first — works on mobile & desktop without a browser extension
     if (CONFIG.WALLETCONNECT_PROJECT_ID && !CONFIG.WALLETCONNECT_PROJECT_ID.startsWith("PASTE")) {
+      if (typeof window.connectViaWalletConnect !== "function") {
+        showToast("WalletConnect still loading — try again in a second.", "error");
+        return false;
+      }
       try {
         const wc = await window.connectViaWalletConnect();
         return await wireWallet(wc, { silent: false });
@@ -150,6 +154,8 @@ async function connectWallet(silent = false) {
           showToast("Connection cancelled.", "error");
           return false;
         }
+        showToast("WalletConnect error: " + (err?.message || err), "error");
+        return false;
       }
     }
 

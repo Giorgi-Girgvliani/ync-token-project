@@ -60,3 +60,5 @@ async function getReadProvider() {
   }
   throw new Error("All Sepolia RPC endpoints unreachable.");
 }
+
+window.CONFIG = CONFIG;
