@@ -59,9 +59,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.addEventListener("walletconnect:ready", async (e) => {
     if (userAddress) return;
     const wc = e.detail?.provider || window.getWalletConnectProvider?.();
-    if (!wc?.accounts?.length) return;
+    const accounts = e.detail?.accounts
+      || await window.getWalletConnectAccounts?.(wc);
+    if (!accounts?.length) return;
     try {
-      await wireWallet(wc, { silent: false });
+      await wireWallet(wc, { silent: false, accounts });
     } catch (err) {
       showToast("Could not finish connecting: " + (err?.message || err), "error");
     }
@@ -116,7 +118,8 @@ function isWalletConnectProvider(eip1193) {
   return !!eip1193 && eip1193 === window.getWalletConnectProvider?.();
 }
 
-async function wireWallet(eip1193, { silent = false } = {}) {
+async function wireWallet(eip1193, { silent = false, accounts: presetAccounts = null } = {}) {
+  if (!eip1193) return false;
   walletEip1193 = eip1193;
   const wc = isWalletConnectProvider(eip1193);
 
@@ -124,12 +127,12 @@ async function wireWallet(eip1193, { silent = false } = {}) {
     await eip1193.connect();
   }
 
-  let accounts;
-  if (wc) {
-    accounts = eip1193.accounts;
-  } else if (silent) {
+  let accounts = presetAccounts;
+  if (!accounts?.length && wc) {
+    accounts = await window.getWalletConnectAccounts?.(eip1193);
+  } else if (!accounts?.length && silent) {
     accounts = await eip1193.request({ method: "eth_accounts" });
-  } else {
+  } else if (!accounts?.length) {
     setManualDisconnect?.(false);
     accounts = await eip1193.request({ method: "eth_requestAccounts" });
   }
@@ -201,12 +204,15 @@ async function connectWallet(silent = false) {
       try {
         showToast("Approve in your wallet app, then return to this browser tab.");
         const wc = await window.connectViaWalletConnect();
-        if (wc.accounts?.length) return await wireWallet(wc, { silent: false });
+        if (wc) {
+          const accounts = await window.getWalletConnectAccounts?.(wc);
+          if (accounts?.length) return await wireWallet(wc, { silent: false, accounts });
+        }
         showToast("Almost done — switch back to this tab to finish connecting.");
         await window.finishPendingWalletConnect?.();
-        if (window.getWalletConnectProvider?.()?.accounts?.length) {
-          return await wireWallet(window.getWalletConnectProvider(), { silent: false });
-        }
+        const wc2 = window.getWalletConnectProvider?.();
+        const accounts2 = await window.getWalletConnectAccounts?.(wc2);
+        if (accounts2?.length) return await wireWallet(wc2, { silent: false, accounts: accounts2 });
         return false;
       } catch (err) {
         if (err?.code === 4001 || /cancel|closed|rejected|user/i.test(String(err?.message || ""))) {

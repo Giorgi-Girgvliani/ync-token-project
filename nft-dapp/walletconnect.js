@@ -18,13 +18,36 @@ function getReturnUrl() {
   return u.toString();
 }
 
+function parseSessionAccounts(p) {
+  const ns = p?.session?.namespaces?.eip155;
+  if (!ns?.accounts?.length) return [];
+  return ns.accounts.map(a => a.split(":").pop()).filter(Boolean);
+}
+
+window.getWalletConnectAccounts = async function getWalletConnectAccounts(p) {
+  if (!p) return [];
+  if (p.accounts?.length) return [...p.accounts];
+  const fromSession = parseSessionAccounts(p);
+  if (fromSession.length) return fromSession;
+  if (p.connected) {
+    try {
+      const acc = await p.request({ method: "eth_accounts" });
+      if (acc?.length) return acc;
+    } catch { /* not ready yet */ }
+  }
+  return [];
+};
+
 function attachWCListeners(p) {
   if (p._yncBound) return;
   p._yncBound = true;
-  p.on("connect", () => {
+  p.on("connect", async () => {
     sessionStorage.removeItem(WC_PENDING_KEY);
     window.hideWcReturnBanner?.();
-    window.dispatchEvent(new CustomEvent("walletconnect:ready", { detail: { provider: p } }));
+    const accounts = await window.getWalletConnectAccounts(p);
+    window.dispatchEvent(new CustomEvent("walletconnect:ready", {
+      detail: { provider: p, accounts },
+    }));
   });
   p.on("disconnect", () => {
     sessionStorage.removeItem(WC_PENDING_KEY);
@@ -118,10 +141,13 @@ window.finishPendingWalletConnect = async function finishPendingWalletConnect() 
     return false;
   }
 
-  if (p.connected && p.accounts?.length) {
+  const accounts = await window.getWalletConnectAccounts(p);
+  if (p.connected && accounts.length) {
     sessionStorage.removeItem(WC_PENDING_KEY);
     window.hideWcReturnBanner?.();
-    window.dispatchEvent(new CustomEvent("walletconnect:ready", { detail: { provider: p } }));
+    window.dispatchEvent(new CustomEvent("walletconnect:ready", {
+      detail: { provider: p, accounts },
+    }));
     return true;
   }
   return false;
@@ -133,25 +159,31 @@ window.connectViaWalletConnect = async function connectViaWalletConnect() {
     throw new Error("Set WALLETCONNECT_PROJECT_ID in config.js (free at https://cloud.reown.com)");
   }
 
-  if (p.connected && p.accounts?.length) return p;
+  const existing = await window.getWalletConnectAccounts(p);
+  if (p.connected && existing.length) return p;
 
   sessionStorage.setItem(WC_PENDING_KEY, "1");
   window.hideWcReturnBanner?.();
 
   if (!p.connected) await p.connect();
 
-  for (let i = 0; i < 10; i++) {
-    if (p.accounts?.length) {
+  for (let i = 0; i < 15; i++) {
+    const accounts = await window.getWalletConnectAccounts(p);
+    if (accounts.length) {
       sessionStorage.removeItem(WC_PENDING_KEY);
       window.hideWcReturnBanner?.();
       return p;
     }
-    await new Promise(r => setTimeout(r, 300));
+    await new Promise(r => setTimeout(r, 400));
   }
 
-  if (p.session) return p;
+  if (p.session) {
+    maybeShowReturnHint();
+    return p;
+  }
 
   maybeShowReturnHint();
+  return null;
 };
 
 window.trySilentWalletConnect = async function trySilentWalletConnect() {
