@@ -47,6 +47,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (silentAddr || wcAddr || window.ethereum?.selectedAddress) {
     await connectWallet(true);
   }
+
+  window.addEventListener("walletconnect:ready", async (e) => {
+    if (userAddress) return;
+    const wc = e.detail?.provider || window.getWalletConnectProvider?.();
+    if (!wc?.accounts?.length) return;
+    const ok = await wireWallet(wc, { silent: false });
+    if (ok) showToast("Wallet connected!");
+  });
 });
 
 /* ─── Mobile nav ────────────────────────────────────────────────────────── */
@@ -157,8 +165,15 @@ async function connectWallet(silent = false) {
         return false;
       }
       try {
+        showToast("Approve in your wallet app, then return to this browser tab.");
         const wc = await window.connectViaWalletConnect();
-        return await wireWallet(wc, { silent: false });
+        if (wc.accounts?.length) return await wireWallet(wc, { silent: false });
+        showToast("Almost done — switch back to this tab to finish connecting.");
+        await window.finishPendingWalletConnect?.();
+        if (window.getWalletConnectProvider?.()?.accounts?.length) {
+          return await wireWallet(window.getWalletConnectProvider(), { silent: false });
+        }
+        return false;
       } catch (err) {
         if (err?.code === 4001 || /cancel|closed|rejected|user/i.test(String(err?.message || ""))) {
           showToast("Connection cancelled.", "error");
