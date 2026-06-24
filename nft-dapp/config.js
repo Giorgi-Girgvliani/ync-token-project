@@ -36,7 +36,7 @@ const CONFIG = {
 
   // Free WalletConnect / Reown project ID — get one at https://cloud.reown.com
   // Required for mobile + desktop wallet connect without a browser extension.
-  WALLETCONNECT_PROJECT_ID: "PASTE_YOUR_WALLETCONNECT_PROJECT_ID",
+  WALLETCONNECT_PROJECT_ID: "55185d614644f4fc166735a14b00759b",
 
   // Public read-only Sepolia RPCs (no PublicNode — it blocks archive/log requests)
   SEPOLIA_RPCS: [
