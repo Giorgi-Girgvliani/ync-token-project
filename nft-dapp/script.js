@@ -18,29 +18,6 @@ const ERC20_ABI = [
   "function symbol() view returns (string)",
 ];
 
-/* ─── CORS-friendly public Sepolia RPCs (tried in order) ────────────────── */
-const SEPOLIA_RPCS = [
-  "https://sepolia.drpc.org",
-  "https://rpc2.sepolia.org",
-  "https://1rpc.io/sepolia",
-];
-
-async function getReadProvider() {
-  if (typeof ethers === "undefined") throw new Error("ethers not loaded");
-  for (const url of SEPOLIA_RPCS) {
-    try {
-      const p = new ethers.providers.JsonRpcProvider(url);
-      // Quick liveness check with 4 s timeout
-      await Promise.race([
-        p.getBlockNumber(),
-        new Promise((_, r) => setTimeout(() => r(new Error("timeout")), 4000)),
-      ]);
-      return p;
-    } catch { /* try next */ }
-  }
-  throw new Error("All Sepolia RPC endpoints unreachable.");
-}
-
 /* ─── State ─────────────────────────────────────────────────────────────── */
 let provider, signer, userAddress;
 let nftContract, yncContract;
@@ -607,7 +584,7 @@ async function resolveENS(address) {
   if (typeof ethers === "undefined") return null;
   try {
     // ENS only works on mainnet — use a CORS-friendly mainnet endpoint
-    const mainnet = new ethers.providers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
+    const mainnet = new ethers.providers.JsonRpcProvider("https://cloudflare-eth.com");
     const name = await mainnet.lookupAddress(address);
     return name || null;
   } catch { return null; }

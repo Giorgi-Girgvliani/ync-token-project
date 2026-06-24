@@ -33,4 +33,26 @@ const CONFIG = {
   // Find it on Etherscan: open your contract → Creation Tx → check the timestamp.
   // Current estimate: June 17 2026. Update this to the exact value for accuracy.
   DEPLOY_TIMESTAMP: 1750204800,
+
+  // Public read-only Sepolia RPCs (no PublicNode — it blocks archive/log requests)
+  SEPOLIA_RPCS: [
+    "https://sepolia.drpc.org",
+    "https://rpc2.sepolia.org",
+    "https://1rpc.io/sepolia",
+  ],
 };
+
+async function getReadProvider() {
+  if (typeof ethers === "undefined") throw new Error("ethers not loaded");
+  for (const url of CONFIG.SEPOLIA_RPCS) {
+    try {
+      const p = new ethers.providers.JsonRpcProvider(url);
+      await Promise.race([
+        p.getBlockNumber(),
+        new Promise((_, r) => setTimeout(() => r(new Error("timeout")), 4000)),
+      ]);
+      return p;
+    } catch { /* try next */ }
+  }
+  throw new Error("All Sepolia RPC endpoints unreachable.");
+}
