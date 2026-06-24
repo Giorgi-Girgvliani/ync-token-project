@@ -1080,19 +1080,15 @@ async function loadLeaderboard() {
     const total = sup.toNumber();
     if (!total) { el.innerHTML = `<div class="activity-empty">No NFTs minted yet.</div>`; return; }
 
-    // Build owner map from Transfer events (accurate after transfers/sales)
-    // Mint = Transfer from 0x0; transfer out decrements the sender
+    // Count current owners via ownerOf (no archive eth_getLogs required)
     const ownerMap = {};
-    const ZERO = "0x0000000000000000000000000000000000000000";
-    const events = await con.queryFilter(con.filters.Transfer(), -50000);
-    events.forEach(ev => {
-      const from = ev.args.from.toLowerCase();
-      const to   = ev.args.to.toLowerCase();
-      if (from !== ZERO) ownerMap[from] = Math.max(0, (ownerMap[from] || 0) - 1);
-      if (to   !== ZERO) ownerMap[to]   = (ownerMap[to]   || 0) + 1;
+    const owners = await Promise.all(
+      Array.from({ length: total }, (_, i) => con.ownerOf(i + 1))
+    );
+    owners.forEach(o => {
+      const addr = o.toLowerCase();
+      ownerMap[addr] = (ownerMap[addr] || 0) + 1;
     });
-    // Remove addresses with 0 tokens
-    Object.keys(ownerMap).forEach(k => { if (ownerMap[k] === 0) delete ownerMap[k]; });
 
     const sorted = Object.entries(ownerMap).sort((a,b) => b[1]-a[1]);
     if (!sorted.length) { el.innerHTML = `<div class="activity-empty">No data yet.</div>`; return; }
