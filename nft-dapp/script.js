@@ -48,6 +48,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     await connectWallet(true);
   }
 
+  // Resume WalletConnect after wallet app redirects back to the browser
+  if (sessionStorage.getItem("ync_wc_pending") === "1"
+      || new URLSearchParams(window.location.search).get("wc_return") === "1") {
+    await window.finishPendingWalletConnect?.();
+  }
+
+  initMobileConnectHints();
+
   window.addEventListener("walletconnect:ready", async (e) => {
     if (userAddress) return;
     const wc = e.detail?.provider || window.getWalletConnectProvider?.();
@@ -72,6 +80,20 @@ function toggleMenu() {
 function closeMobileNav() {
   document.getElementById("navLinks")?.classList.remove("open");
   document.getElementById("hamburger")?.classList.remove("open");
+}
+
+function initMobileConnectHints() {
+  if (!/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) return;
+  const mmUrl = window.getMetaMaskBrowserUrl?.();
+  if (!mmUrl) return;
+  document.querySelectorAll(".connect-prompt, #galleryNotConnected, #profileNotConnected").forEach(el => {
+    if (el.querySelector(".metamask-browser-link")) return;
+    const a = document.createElement("a");
+    a.href = mmUrl;
+    a.className = "btn btn-ghost btn-sm metamask-browser-link";
+    a.textContent = "Open in MetaMask browser (recommended on mobile)";
+    el.appendChild(a);
+  });
 }
 
 let walletEip1193 = null;
@@ -138,6 +160,9 @@ async function wireWallet(eip1193, { silent = false } = {}) {
   }));
 
   bindWalletEvents(eip1193);
+
+  sessionStorage.removeItem("ync_wc_pending");
+  window.hideWcReturnBanner?.();
 
   // Network switch is separate — don't block "connected" if user skips or misses the prompt
   const onSepolia = await ensureSepolia(eip1193).catch(() => false);

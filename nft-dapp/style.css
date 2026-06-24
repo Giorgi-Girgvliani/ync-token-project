@@ -478,6 +478,24 @@ img { display: block; max-width: 100%; }
 .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 .toast.error { background: rgba(239,68,68,.92); }
 
+/* WalletConnect return banner (mobile) */
+.wc-return-banner {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(8, 10, 18, 0.92);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.wc-return-inner {
+  max-width: 420px; text-align: center;
+  background: var(--surface, #12141f);
+  border: 1px solid rgba(124, 58, 237, 0.35);
+  border-radius: 16px; padding: 24px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.45);
+}
+.wc-return-sub { font-size: 0.85rem; color: var(--text-muted); margin: 10px 0 16px; line-height: 1.5; }
+.wc-return-actions { display: flex; flex-direction: column; gap: 10px; }
+.metamask-browser-link { margin-top: 4px; text-align: center; font-size: 0.82rem; }
+
 /* =============================================
    FOOTER
    ============================================= */
