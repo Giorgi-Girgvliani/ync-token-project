@@ -41,9 +41,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // Auto-reconnect silently if MetaMask already authorized this site
+  // Auto-reconnect silently if wallet already authorized this site
   const silentAddr = await trySilentConnect?.();
-  if (silentAddr || window.ethereum?.selectedAddress) {
+  const wcAddr = await window.trySilentWalletConnect?.();
+  if (silentAddr || wcAddr || window.ethereum?.selectedAddress) {
     await connectWallet(true);
   }
 });
@@ -62,67 +63,109 @@ function closeMobileNav() {
   document.getElementById("hamburger")?.classList.remove("open");
 }
 
+let walletEip1193 = null;
+
+function bindWalletEvents(eip1193) {
+  if (!eip1193?.on) return;
+  eip1193.removeAllListeners?.("accountsChanged");
+  eip1193.removeAllListeners?.("chainChanged");
+  eip1193.removeAllListeners?.("disconnect");
+  eip1193.on("accountsChanged", () => location.reload());
+  eip1193.on("chainChanged", () => location.reload());
+  eip1193.on("disconnect", () => {
+    resetWalletState?.();
+    updateGlobalNavWallet?.();
+    renderDisconnectedPages?.();
+  });
+}
+
+async function wireWallet(eip1193, { silent = false } = {}) {
+  walletEip1193 = eip1193;
+  await ensureSepolia(eip1193);
+
+  let accounts;
+  if (silent) {
+    accounts = await eip1193.request({ method: "eth_accounts" });
+  } else if (eip1193.accounts?.length) {
+    accounts = eip1193.accounts;
+  } else {
+    setManualDisconnect?.(false);
+    accounts = await eip1193.request({ method: "eth_requestAccounts" });
+  }
+  if (!accounts?.[0] && eip1193.accounts?.length) accounts = eip1193.accounts;
+  if (!accounts?.[0]) return false;
+
+  userAddress = accounts[0];
+  provider = new ethers.providers.Web3Provider(eip1193);
+  signer   = provider.getSigner();
+
+  if (CONFIG.NFT_CONTRACT === "PASTE_YOUR_NFT_CONTRACT_ADDRESS") {
+    if (!silent) showToast("⚠ Paste your NFT contract address in config.js first!", "error");
+  } else {
+    nftContract = new ethers.Contract(CONFIG.NFT_CONTRACT, NFT_ABI, signer);
+  }
+  yncContract = new ethers.Contract(CONFIG.YNC_CONTRACT, ERC20_ABI, provider);
+
+  saveWalletSession?.(userAddress);
+  updateNavWallet();
+  updateGlobalNavWallet?.();
+
+  if (document.getElementById("mintPanel"))   await initMintPage();
+  if (document.getElementById("galleryGrid")) await initGalleryPage();
+  if (document.getElementById("profilePage")) await initProfilePage?.();
+
+  window.dispatchEvent(new CustomEvent("wallet:connected", {
+    detail: { address: userAddress, provider, signer },
+  }));
+
+  bindWalletEvents(eip1193);
+  return true;
+}
+
 /* ─── Connect Wallet ────────────────────────────────────────────────────── */
 async function connectWallet(silent = false) {
-  if (!window.ethereum) {
-    if (!silent) alert("MetaMask is not installed. Please install it from metamask.io.");
-    return false;
-  }
-
   if (isManualDisconnect?.() && silent) return false;
 
   try {
-    let accounts;
     if (silent) {
-      if (isManualDisconnect?.()) return false;
-      accounts = await window.ethereum.request({ method: "eth_accounts" });
-      if (!accounts?.[0]) return false;
-    } else {
+      if (window.ethereum) {
+        const accounts = await window.ethereum.request({ method: "eth_accounts" });
+        if (accounts?.[0]) return await wireWallet(window.ethereum, { silent: true });
+      }
+      const wcAddr = await window.trySilentWalletConnect?.();
+      if (wcAddr) {
+        const wc = window.getWalletConnectProvider?.();
+        if (wc) return await wireWallet(wc, { silent: true });
+      }
+      return false;
+    }
+
+    // WalletConnect first — works on mobile & desktop without a browser extension
+    if (CONFIG.WALLETCONNECT_PROJECT_ID && !CONFIG.WALLETCONNECT_PROJECT_ID.startsWith("PASTE")) {
+      try {
+        const wc = await window.connectViaWalletConnect();
+        return await wireWallet(wc, { silent: false });
+      } catch (err) {
+        if (err?.code === 4001 || /cancel|closed|rejected|user/i.test(String(err?.message || ""))) {
+          showToast("Connection cancelled.", "error");
+          return false;
+        }
+      }
+    }
+
+    if (window.ethereum) {
       setManualDisconnect?.(false);
-      accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      if (accounts?.[0]) return await wireWallet(window.ethereum, { silent: false });
     }
-    userAddress = accounts[0];
 
-    // Ensure Sepolia
-    await ensureSepolia();
-
-    // Wire up ethers
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    signer   = provider.getSigner();
-
-    // Guard against missing contract address
-    if (CONFIG.NFT_CONTRACT === "PASTE_YOUR_NFT_CONTRACT_ADDRESS") {
-      if (!silent) showToast("⚠ Paste your NFT contract address in config.js first!", "error");
-    } else {
-      nftContract = new ethers.Contract(CONFIG.NFT_CONTRACT, NFT_ABI, signer);
-    }
-    yncContract = new ethers.Contract(CONFIG.YNC_CONTRACT, ERC20_ABI, provider);
-
-    saveWalletSession?.(userAddress);
-    updateNavWallet();
-    updateGlobalNavWallet?.();
-
-    // Page-specific logic
-    if (document.getElementById("mintPanel"))   await initMintPage();
-    if (document.getElementById("galleryGrid")) await initGalleryPage();
-    if (document.getElementById("profilePage")) await initProfilePage?.();
-
-    window.dispatchEvent(new CustomEvent("wallet:connected", {
-      detail: { address: userAddress, provider, signer },
-    }));
-
-    // Listen for account / chain changes
-    window.ethereum.removeAllListeners?.("accountsChanged");
-    window.ethereum.removeAllListeners?.("chainChanged");
-    window.ethereum.on("accountsChanged", () => location.reload());
-    window.ethereum.on("chainChanged",    () => location.reload());
-
-    return true;
+    showToast("Add WALLETCONNECT_PROJECT_ID in config.js (free at cloud.reown.com)", "error");
+    return false;
 
   } catch (err) {
     if (!silent) {
       if (err.code === 4001) showToast("Connection cancelled.", "error");
-      else alert("Connection error: " + (err.message || err));
+      else showToast("Connection error: " + (err.message || err), "error");
     }
     return false;
   }
@@ -134,6 +177,7 @@ function resetWalletState() {
   signer = null;
   nftContract = null;
   yncContract = null;
+  walletEip1193 = null;
 }
 
 function renderDisconnectedPages() {
@@ -163,28 +207,29 @@ function renderDisconnectedPages() {
   document.getElementById("profileConnected")?.classList.add("hidden");
 }
 
-async function ensureSepolia() {
-  const chainId = await window.ethereum.request({ method: "eth_chainId" });
+async function ensureSepolia(eip1193 = walletEip1193 || window.ethereum) {
+  if (!eip1193) throw new Error("No wallet provider");
+  const chainId = await eip1193.request({ method: "eth_chainId" });
   if (chainId.toLowerCase() === CONFIG.SEPOLIA_CHAIN_ID) return;
 
   try {
-    await window.ethereum.request({
+    await eip1193.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: CONFIG.SEPOLIA_CHAIN_ID }],
     });
   } catch (err) {
     if (err.code === 4902) {
-      await window.ethereum.request({
+      await eip1193.request({
         method: "wallet_addEthereumChain",
         params: [{
           chainId: CONFIG.SEPOLIA_CHAIN_ID,
           chainName: "Sepolia Testnet",
           nativeCurrency: { name: "SepoliaETH", symbol: "ETH", decimals: 18 },
-          rpcUrls: ["https://sepolia.drpc.org"],
+          rpcUrls: CONFIG.SEPOLIA_RPCS,
           blockExplorerUrls: ["https://sepolia.etherscan.io"],
         }],
       });
-      await window.ethereum.request({
+      await eip1193.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: CONFIG.SEPOLIA_CHAIN_ID }],
       });
@@ -335,7 +380,7 @@ async function loadGallery(showSkeleton = false) {
         empty.querySelector("p").textContent  = "Paste your NFT contract address in config.js";
       } else {
         empty.querySelector("h2").textContent = "Wallet not connected";
-        empty.querySelector("p").textContent  = "Connect MetaMask to view your idkSomething NFTs.";
+        empty.querySelector("p").textContent  = "Connect your wallet to view your idkSomething NFTs.";
       }
     }
     return;
@@ -592,7 +637,8 @@ async function resolveENS(address) {
 
 /* ─── Add YNC to MetaMask ───────────────────────────────────────────────── */
 async function addYNCToMetaMask() {
-  if (!window.ethereum) { showToast("MetaMask not detected.", "error"); return; }
+  const eip1193 = walletEip1193 || window.ethereum;
+  if (!eip1193) { showToast("Connect wallet first.", "error"); return; }
   try {
     // Read the actual on-chain symbol so it matches what MetaMask expects
     let symbol = "YNC";
@@ -602,7 +648,7 @@ async function addYNCToMetaMask() {
       symbol    = await con.symbol();
     } catch { /* fall back to "YNC" */ }
 
-    await window.ethereum.request({
+    await eip1193.request({
       method: "wallet_watchAsset",
       params: {
         type: "ERC20",

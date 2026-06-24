@@ -34,6 +34,10 @@ const CONFIG = {
   // Current estimate: June 17 2026. Update this to the exact value for accuracy.
   DEPLOY_TIMESTAMP: 1750204800,
 
+  // Free WalletConnect / Reown project ID — get one at https://cloud.reown.com
+  // Required for mobile + desktop wallet connect without a browser extension.
+  WALLETCONNECT_PROJECT_ID: "PASTE_YOUR_WALLETCONNECT_PROJECT_ID",
+
   // Public read-only Sepolia RPCs (no PublicNode — it blocks archive/log requests)
   SEPOLIA_RPCS: [
     "https://sepolia.drpc.org",

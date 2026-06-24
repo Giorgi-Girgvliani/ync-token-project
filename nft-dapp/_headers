@@ -7,5 +7,8 @@
 /script.js
   Cache-Control: public, max-age=0, must-revalidate
 
+/walletconnect.js
+  Cache-Control: public, max-age=0, must-revalidate
+
 /leaderboard.js
   Cache-Control: public, max-age=0, must-revalidate

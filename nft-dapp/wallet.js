@@ -125,6 +125,7 @@ function updateGlobalNavWallet() {
 function disconnectWallet() {
   setManualDisconnect(true);
   clearWalletSession();
+  window.disconnectWalletConnect?.();
 
   if (typeof resetWalletState === "function") resetWalletState();
 
