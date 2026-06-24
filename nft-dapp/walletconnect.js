@@ -47,6 +47,9 @@ window.connectViaWalletConnect = async function connectViaWalletConnect() {
     throw new Error("Set WALLETCONNECT_PROJECT_ID in config.js (free at https://cloud.reown.com)");
   }
   if (!p.connected) await p.connect();
+  if (!p.accounts?.length) {
+    throw new Error("Wallet connected but no accounts returned. Try again.");
+  }
   return p;
 };
 
@@ -54,7 +57,7 @@ window.trySilentWalletConnect = async function trySilentWalletConnect() {
   const p = await ensureWCInit();
   if (!p?.session) return null;
   try {
-    await p.enable();
+    if (!p.connected) await p.enable();
     return p.accounts?.[0] || null;
   } catch {
     return null;

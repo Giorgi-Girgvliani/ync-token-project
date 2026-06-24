@@ -79,21 +79,31 @@ function bindWalletEvents(eip1193) {
   });
 }
 
+function isWalletConnectProvider(eip1193) {
+  return !!eip1193 && eip1193 === window.getWalletConnectProvider?.();
+}
+
 async function wireWallet(eip1193, { silent = false } = {}) {
   walletEip1193 = eip1193;
-  await ensureSepolia(eip1193);
+  const wc = isWalletConnectProvider(eip1193);
+
+  if (wc && !eip1193.connected) {
+    await eip1193.connect();
+  }
 
   let accounts;
-  if (silent) {
-    accounts = await eip1193.request({ method: "eth_accounts" });
-  } else if (eip1193.accounts?.length) {
+  if (wc) {
     accounts = eip1193.accounts;
+  } else if (silent) {
+    accounts = await eip1193.request({ method: "eth_accounts" });
   } else {
     setManualDisconnect?.(false);
     accounts = await eip1193.request({ method: "eth_requestAccounts" });
   }
   if (!accounts?.[0] && eip1193.accounts?.length) accounts = eip1193.accounts;
   if (!accounts?.[0]) return false;
+
+  await ensureSepolia(eip1193);
 
   userAddress = accounts[0];
   provider = new ethers.providers.Web3Provider(eip1193);
@@ -215,7 +225,16 @@ function renderDisconnectedPages() {
 
 async function ensureSepolia(eip1193 = walletEip1193 || window.ethereum) {
   if (!eip1193) throw new Error("No wallet provider");
-  const chainId = await eip1193.request({ method: "eth_chainId" });
+
+  const wc = isWalletConnectProvider(eip1193);
+  if (wc && !eip1193.connected) await eip1193.connect();
+
+  let chainId;
+  if (eip1193.chainId != null) {
+    chainId = "0x" + Number(eip1193.chainId).toString(16);
+  } else {
+    chainId = await eip1193.request({ method: "eth_chainId" });
+  }
   if (chainId.toLowerCase() === CONFIG.SEPOLIA_CHAIN_ID) return;
 
   try {
